@@ -83,7 +83,7 @@ export const DIAGNOSTIC_ZONES = {
   },
   wheels: {
     id: "wheels",
-    label: "Kolesá, pneumatiky, disky & brzdy",
+    label: "Kolesá, pneu, disky & brzdy",
     badge: "Zóna 2 — Podvozok & Kolesá",
     action: "inspectWheels",
     cameraPos: [3.6, 1.3, 1.8],
@@ -98,7 +98,7 @@ export const DIAGNOSTIC_ZONES = {
   },
   cabin: {
     id: "cabin",
-    label: "Interiér & Ventilácia",
+    label: "Kabína & Ventilácia",
     badge: "Zóna 3 — Kabína vozidla",
     action: "openDoors",
     cameraPos: [2.7, 1.7, 0.2],
@@ -112,7 +112,7 @@ export const DIAGNOSTIC_ZONES = {
   },
   exhaust: {
     id: "exhaust",
-    label: "Zadná náprava, výfuk & diely",
+    label: "Zadná náprava & Diely",
     badge: "Zóna 4 — Zadná časť",
     action: "inspectWheels",
     cameraPos: [-2.6, 1.6, -3.2],

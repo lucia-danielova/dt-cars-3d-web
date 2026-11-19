@@ -13,13 +13,76 @@ const { state: carState, setBodyColor, updateCarAnimations } = buildCarModel(sce
 
 let activeZoneId = null;
 let confirmationTimeout = 0;
-const serviceCart = [];
+let toastTimeout = 0;
+let cartCloseTimeout = 0;
+const cartBackdrop = document.getElementById('cart-backdrop');
+const toastElement = document.getElementById('toast');
+const CART_STORAGE_KEY = 'dtcars-service-cart-v1';
+
+function showToast(message, tone = 'success') {
+  window.clearTimeout(toastTimeout);
+  toastElement.textContent = message;
+  toastElement.dataset.tone = tone;
+  toastElement.classList.add('is-visible');
+  toastTimeout = window.setTimeout(() => {
+    toastElement.classList.remove('is-visible');
+  }, 3000);
+}
+
+function createCartId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function loadCart() {
+  try {
+    const savedItems = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    if (!Array.isArray(savedItems)) {
+      showToast('Uložený servisný plán má neplatný formát.', 'error');
+      return [];
+    }
+
+    return savedItems.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const zone = DIAGNOSTIC_ZONES[item.zoneId];
+      if (!zone || !Array.isArray(item.serviceIds) || typeof item.note !== 'string') return [];
+      const serviceIds = item.serviceIds.filter((serviceId) =>
+        zone.serviceIds.includes(serviceId) && SERVICES.some((service) => service.id === serviceId)
+      );
+      if (serviceIds.length === 0 && !item.note.trim()) return [];
+      return [{
+        id: typeof item.id === 'string' ? item.id : createCartId(),
+        zoneId: zone.id,
+        serviceIds,
+        note: item.note
+      }];
+    });
+  } catch (error) {
+    showToast('Uložený servisný plán sa nepodarilo načítať.', 'error');
+    return [];
+  }
+}
+
+function saveCart() {
+  try {
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(serviceCart));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+const serviceCart = loadCart();
 
 document.querySelectorAll('.swatch').forEach((button) => {
   button.addEventListener('click', () => {
     setBodyColor(button.dataset.color);
     document.querySelectorAll('.swatch').forEach((swatch) => {
-      swatch.setAttribute('aria-pressed', String(swatch === button));
+      const isSelected = swatch === button;
+      swatch.classList.toggle('is-selected', isSelected);
+      swatch.setAttribute('aria-pressed', String(isSelected));
     });
   });
 });
@@ -128,78 +191,150 @@ document.getElementById('reset-cam').addEventListener('click', () => {
 
 function updateCartUI() {
   document.getElementById('cart-count').textContent = serviceCart.length;
+  document.getElementById('drawer-count').textContent = serviceCart.length;
   const itemsContainer = document.getElementById('cart-items-container');
+  const clearCartButton = document.getElementById('clear-cart-btn');
   itemsContainer.replaceChildren();
+  clearCartButton.disabled = serviceCart.length === 0;
 
   if (serviceCart.length === 0) {
     const emptyMessage = document.createElement('p');
     emptyMessage.className = 'empty-cart';
-    emptyMessage.textContent = 'Zatiaľ ste neoznačili žiadnu časť na 3D aute.';
+    emptyMessage.textContent = 'Servisný plán je prázdny. Vyberte zónu na aute alebo pridajte službu z katalógu.';
     itemsContainer.appendChild(emptyMessage);
     return;
   }
 
-  serviceCart.forEach((item, index) => {
-    const card = document.createElement('div');
-    const details = document.createElement('div');
-    const title = document.createElement('strong');
-    const services = document.createElement('p');
-    const removeButton = document.createElement('button');
+  Object.values(DIAGNOSTIC_ZONES).forEach((zone) => {
+    const zoneItems = serviceCart.filter((item) => item.zoneId === zone.id);
+    if (zoneItems.length === 0) return;
 
-    card.className = 'cart-item';
-    title.textContent = item.zoneLabel;
-    services.className = 'cart-item-services';
-    services.textContent = `Služby: ${item.services.join(', ') || 'Diagnostika'}`;
-    details.append(title, services);
+    const group = document.createElement('section');
+    const heading = document.createElement('h4');
+    group.className = 'cart-zone-group';
+    heading.className = 'cart-zone-title';
+    heading.textContent = zone.label;
+    group.appendChild(heading);
 
-    if (item.note) {
-      const note = document.createElement('p');
-      note.className = 'cart-item-note';
-      note.textContent = `Poznámka: ${item.note}`;
-      details.appendChild(note);
-    }
+    zoneItems.forEach((item) => {
+      const card = document.createElement('article');
+      const details = document.createElement('div');
+      const services = document.createElement('p');
+      const removeButton = document.createElement('button');
+      const serviceTitles = item.serviceIds
+        .map((serviceId) => SERVICES.find((service) => service.id === serviceId)?.title)
+        .filter(Boolean);
 
-    removeButton.type = 'button';
-    removeButton.className = 'close-btn';
-    removeButton.dataset.removeIndex = index;
-    removeButton.setAttribute('aria-label', `Odstrániť položku ${index + 1}`);
-    removeButton.textContent = '✕';
-    removeButton.addEventListener('click', () => {
-      serviceCart.splice(index, 1);
-      updateCartUI();
+      card.className = 'cart-item';
+      details.className = 'cart-item-details';
+      services.className = 'cart-item-services';
+      services.textContent = serviceTitles.length
+        ? serviceTitles.join(', ')
+        : 'Diagnostika podľa popisu';
+      details.appendChild(services);
+
+      if (item.note) {
+        const note = document.createElement('p');
+        note.className = 'cart-item-note';
+        note.textContent = item.note;
+        details.appendChild(note);
+      }
+
+      removeButton.type = 'button';
+      removeButton.className = 'close-btn cart-remove-btn';
+      removeButton.dataset.removeId = item.id;
+      removeButton.setAttribute('aria-label', 'Odstrániť položku zo servisného plánu');
+      removeButton.textContent = '✕';
+      card.append(details, removeButton);
+      group.appendChild(card);
     });
 
-    card.append(details, removeButton);
-    itemsContainer.appendChild(card);
+    itemsContainer.appendChild(group);
   });
 }
+
+function addCartEntry(zoneId, serviceIds, note = '') {
+  const zone = DIAGNOSTIC_ZONES[zoneId];
+  if (!zone) return;
+
+  const validServiceIds = serviceIds.filter((serviceId) =>
+    zone.serviceIds.includes(serviceId) && SERVICES.some((service) => service.id === serviceId)
+  );
+  const cleanNote = note.trim();
+  if (validServiceIds.length === 0 && !cleanNote) return;
+
+  serviceCart.push({
+    id: createCartId(),
+    zoneId: zone.id,
+    serviceIds: validServiceIds,
+    note: cleanNote
+  });
+  const saved = saveCart();
+  updateCartUI();
+  showToast(
+    saved ? 'Služba bola pridaná do servisného plánu.' : 'Služba je pridaná, ale prehliadač ju nedokázal uložiť.',
+    saved ? 'success' : 'error'
+  );
+}
+
+document.getElementById('cart-items-container').addEventListener('click', (event) => {
+  const removeButton = event.target.closest('[data-remove-id]');
+  if (!removeButton) return;
+  const itemIndex = serviceCart.findIndex((item) => item.id === removeButton.dataset.removeId);
+  if (itemIndex < 0) return;
+  serviceCart.splice(itemIndex, 1);
+  const saved = saveCart();
+  updateCartUI();
+  if (!saved) showToast('Zmena sa prejaví len v tejto relácii; uloženie zlyhalo.', 'error');
+});
+
+document.getElementById('clear-cart-btn').addEventListener('click', () => {
+  if (serviceCart.length === 0) return;
+  serviceCart.length = 0;
+  const saved = saveCart();
+  updateCartUI();
+  showToast(
+    saved ? 'Servisný plán bol vyprázdnený.' : 'Plán bol vymazaný len pre túto reláciu.',
+    saved ? 'success' : 'error'
+  );
+});
+
+updateCartUI();
 
 addToCartButton.addEventListener('click', () => {
   if (!activeZoneId) return;
 
-  const zone = DIAGNOSTIC_ZONES[activeZoneId];
   const checkedServiceIds = Array.from(
     document.querySelectorAll('#zone-services-list input:checked'),
     (input) => input.value
   );
-  const selectedServices = checkedServiceIds
-    .map((serviceId) => SERVICES.find((service) => service.id === serviceId))
-    .filter(Boolean)
-    .map((service) => service.title);
   const note = document.getElementById('problem-note').value.trim();
 
-  if (selectedServices.length === 0 && !note) {
+  if (checkedServiceIds.length === 0 && !note) {
     zoneFeedback.textContent = 'Vyberte službu alebo stručne opíšte problém.';
     zoneFeedback.classList.add('is-error');
     return;
   }
 
-  serviceCart.push({ zoneLabel: zone.label, services: selectedServices, note });
+  const zoneId = activeZoneId;
+  serviceCart.push({
+    id: createCartId(),
+    zoneId,
+    serviceIds: checkedServiceIds,
+    note
+  });
+  const saved = saveCart();
   updateCartUI();
-  zoneFeedback.textContent = 'Pridané do servisného zoznamu.';
+  zoneFeedback.textContent = saved
+    ? 'Pridané do servisného plánu.'
+    : 'Pridané, ale prehliadač tento plán neuložil.';
   zoneFeedback.classList.remove('is-error');
-  addToCartButton.textContent = '✓ Pridané do servisného zoznamu';
+  addToCartButton.textContent = '✓ Pridané do servisného plánu';
   addToCartButton.classList.add('is-added');
+  showToast(
+    saved ? 'Zóna bola pridaná do servisného plánu.' : 'Položka je pridaná, ale uloženie zlyhalo.',
+    saved ? 'success' : 'error'
+  );
 
   window.clearTimeout(confirmationTimeout);
   confirmationTimeout = window.setTimeout(() => {
@@ -215,26 +350,41 @@ SERVICES.forEach((service) => {
   const category = document.createElement('small');
   const title = document.createElement('h3');
   const description = document.createElement('p');
-  const chooseButton = document.createElement('button');
+  const actions = document.createElement('div');
+  const jumpButton = document.createElement('button');
+  const addButton = document.createElement('button');
 
   card.className = 'service-card';
+  actions.className = 'service-card-actions';
   category.textContent = service.category;
   title.textContent = service.title;
   description.textContent = service.description;
-  chooseButton.type = 'button';
-  chooseButton.className = 'btn btn-ghost';
-  chooseButton.dataset.jumpZone = service.zoneId;
-  chooseButton.textContent = 'Označiť na 3D aute →';
+  jumpButton.type = 'button';
+  jumpButton.className = 'btn btn-ghost';
+  jumpButton.dataset.jumpZone = service.zoneId;
+  jumpButton.textContent = 'Zobraziť zónu';
+  addButton.type = 'button';
+  addButton.className = 'btn btn-primary';
+  addButton.dataset.addService = service.id;
+  addButton.textContent = '+ Pridať';
   content.append(category, title, description);
-  card.append(content, chooseButton);
+  actions.append(jumpButton, addButton);
+  card.append(content, actions);
   allServicesGrid.appendChild(card);
 });
 
 allServicesGrid.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-jump-zone]');
-  if (!button) return;
+  const addButton = event.target.closest('[data-add-service]');
+  if (addButton) {
+    const service = SERVICES.find((item) => item.id === addButton.dataset.addService);
+    if (service) addCartEntry(service.zoneId, [service.id]);
+    return;
+  }
+
+  const jumpButton = event.target.closest('[data-jump-zone]');
+  if (!jumpButton) return;
   document.getElementById('services-modal').classList.add('hidden');
-  selectZone(button.dataset.jumpZone);
+  selectZone(jumpButton.dataset.jumpZone);
 });
 
 document.querySelectorAll('[data-modal]').forEach((button) => {
@@ -243,9 +393,32 @@ document.querySelectorAll('[data-modal]').forEach((button) => {
   });
 });
 
-document.getElementById('open-cart-btn').addEventListener('click', () => {
+function openCart() {
+  window.clearTimeout(cartCloseTimeout);
   updateCartUI();
-  document.getElementById('cart-modal').classList.remove('hidden');
+  cartBackdrop.classList.remove('hidden');
+  document.body.classList.add('cart-open');
+  window.requestAnimationFrame(() => {
+    cartBackdrop.classList.add('is-open');
+    document.getElementById('close-cart-btn').focus();
+  });
+}
+
+function closeCart() {
+  if (cartBackdrop.classList.contains('hidden')) return;
+  window.clearTimeout(cartCloseTimeout);
+  cartBackdrop.classList.remove('is-open');
+  document.body.classList.remove('cart-open');
+  cartCloseTimeout = window.setTimeout(() => {
+    cartBackdrop.classList.add('hidden');
+    document.getElementById('open-cart-btn').focus();
+  }, 280);
+}
+
+document.getElementById('open-cart-btn').addEventListener('click', openCart);
+document.getElementById('close-cart-btn').addEventListener('click', closeCart);
+cartBackdrop.addEventListener('click', (event) => {
+  if (event.target === cartBackdrop) closeCart();
 });
 
 document.querySelectorAll('[data-close-modal]').forEach((button) => {
@@ -263,31 +436,81 @@ document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
   closeZonePanel();
+  if (!cartBackdrop.classList.contains('hidden')) closeCart();
   document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach((modal) => {
     modal.classList.add('hidden');
   });
 });
 
-document.getElementById('booking-form').addEventListener('submit', (event) => {
-  event.preventDefault();
+function buildOrderSummary() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
   const email = document.getElementById('cust-email').value.trim();
   const car = document.getElementById('cust-car').value.trim();
-  const summary = serviceCart
-    .map(
-      (item, index) =>
-        `${index + 1}. ${item.zoneLabel}\n   Služby: ${item.services.join(', ') || 'Diagnostika'}\n   Popis: ${item.note || '-'}`
-    )
-    .join('\n\n');
-  const body = encodeURIComponent(
-    `Dobrý deň,\n\nmám záujem o servisné služby v ${COMPANY_INFO.name}:\n\n` +
-      `Meno: ${name}\nTelefón: ${phone}\nE-mail: ${email}\nVozidlo: ${car}\n\n` +
-      `Označené položky z 3D modelu:\n${summary || 'Všeobecný dopyt'}`
-  );
-  const subject = encodeURIComponent(`Objednávka servisu z 3D webu - ${name}`);
+  const plate = document.getElementById('cust-plate').value.trim();
+  const date = document.getElementById('cust-date').value;
+  const time = document.getElementById('cust-time').value;
+  const orderLines = [];
 
-  window.location.href = `mailto:${COMPANY_INFO.email}?subject=${subject}&body=${body}`;
+  Object.values(DIAGNOSTIC_ZONES).forEach((zone) => {
+    const items = serviceCart.filter((item) => item.zoneId === zone.id);
+    if (items.length === 0) return;
+    orderLines.push(`${zone.label}:`);
+    items.forEach((item) => {
+      const titles = item.serviceIds
+        .map((serviceId) => SERVICES.find((service) => service.id === serviceId)?.title)
+        .filter(Boolean);
+      orderLines.push(`  - ${titles.join(', ') || 'Diagnostika podľa popisu'}`);
+      if (item.note) orderLines.push(`    Poznámka: ${item.note}`);
+    });
+  });
+
+  const preferredVisit = [date, time].filter(Boolean).join(' ') || 'Neuvedený';
+  const body = [
+    `Dobrý deň,`,
+    ``,
+    `mám záujem o servis v spoločnosti ${COMPANY_INFO.name}.`,
+    ``,
+    `KONTAKT`,
+    `Meno: ${name || 'Neuvedené'}`,
+    `Telefón: ${phone || 'Neuvedený'}`,
+    `E-mail: ${email || 'Neuvedený'}`,
+    `Vozidlo: ${car || 'Neuvedené'}`,
+    `ŠPZ: ${plate || 'Neuvedená'}`,
+    `Preferovaný termín: ${preferredVisit}`,
+    ``,
+    `SERVISNÝ PLÁN`,
+    ...(orderLines.length ? orderLines : ['Bez vybraných služieb - všeobecný dopyt.']),
+    ``,
+    `${COMPANY_INFO.address}`,
+    `Tel.: ${COMPANY_INFO.phones.join(' | ')}`,
+    `E-mail: ${COMPANY_INFO.email}`
+  ].join('\n');
+
+  return { body, subject: `Dopyt na servis - ${name || 'D&T CARS'}` };
+}
+
+document.getElementById('copy-order-btn').addEventListener('click', async () => {
+  const { body } = buildOrderSummary();
+  if (!navigator.clipboard || !window.isSecureContext) {
+    showToast('Schránka nie je dostupná. Skúste stránku otvoriť cez HTTPS.', 'error');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(body);
+    showToast('Kompletná rekapitulácia bola skopírovaná.');
+  } catch (error) {
+    showToast('Rekapituláciu sa nepodarilo skopírovať. Skúste to znova.', 'error');
+  }
+});
+
+document.getElementById('booking-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const { body, subject } = buildOrderSummary();
+  window.location.href =
+    `mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  showToast('Otvára sa e-mailový program s pripravenou rekapituláciou.');
 });
 
 const animationStart = performance.now();

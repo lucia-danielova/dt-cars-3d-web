@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
 const hotspotConfigs = [
-  { zoneId: 'engine', number: '1', label: 'Motor & Klíma', position: [0, 0.92, 1.45] },
-  { zoneId: 'wheels', number: '2', label: 'Kolesá, Pneu & Brzdy', position: [1.18, 0.45, 1.32] },
-  { zoneId: 'cabin', number: '3', label: 'Kabína & Ozón', position: [0, 1.32, -0.1] },
-  { zoneId: 'exhaust', number: '4', label: 'Podvozok & Diely', position: [0, 0.52, -2.18] }
+  { zoneId: 'engine', number: '1', label: 'Motor & Klíma', position: [0, 0.94, 1.42] },
+  { zoneId: 'wheels', number: '2', label: 'Kolesá & Brzdy', position: [1.18, 0.46, 1.36] },
+  { zoneId: 'cabin', number: '3', label: 'Kabína & Ventilácia', position: [0, 1.32, -0.12] },
+  { zoneId: 'exhaust', number: '4', label: 'Zadná náprava & Diely', position: [0, 0.54, -2.12] }
 ];
 
 export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) {

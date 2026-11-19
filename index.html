@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D&T CARS s.r.o. | 3D Interaktívny Autoservis & Pneuservis Bratislava</title>
   <meta name="description" content="Interaktívny autoservis a pneuservis D&T CARS v Bratislave-Petržalke. Vyberte si službu, opíšte problém a pošlite nezáväzný dopyt." />
-  <meta name="theme-color" content="#090c12" />
+  <meta name="theme-color" content="#090a0d" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/hud-overlay.css" />
   <!-- Import map pre Three.js (bez nutnosti inštalovať Node.js) -->
@@ -32,11 +32,13 @@
       </div>
     </div>
 
+    <span class="open-status"><span aria-hidden="true"></span> OTVORENÉ</span>
+
     <nav class="top-actions" aria-label="Hlavná navigácia">
       <button class="btn btn-ghost" data-modal="services-modal">Služby</button>
       <button class="btn btn-ghost" data-modal="contact-modal">Kontakt</button>
       <button class="btn btn-primary" id="open-cart-btn">
-        Dopyt <span class="badge" id="cart-count" aria-label="Počet vybraných položiek">0</span>
+        Dopyt <span class="badge" id="cart-count" aria-label="Počet vybraných položiek" aria-live="polite" aria-atomic="true">0</span>
       </button>
     </nav>
   </header>
@@ -47,12 +49,12 @@
     <button class="btn-mini" id="toggle-wheels">Kolesá</button>
     <button class="btn-mini" id="reset-cam">Reset</button>
     <span class="dock-divider" aria-hidden="true"></span>
-    <div class="color-swatches" aria-label="Farba laku">
-      <button class="swatch" data-color="#d90429" aria-label="Červený lak" title="Červená"></button>
-      <button class="swatch" data-color="#1d4ed8" aria-label="Modrý lak" title="Modrá"></button>
-      <button class="swatch" data-color="#e2e8f0" aria-label="Strieborný lak" title="Strieborná"></button>
-      <button class="swatch" data-color="#18181b" aria-label="Čierny lak" title="Čierna"></button>
-      <button class="swatch" data-color="#10b981" aria-label="Zelený lak" title="Zelená"></button>
+    <div class="color-swatches" role="group" aria-label="Farba laku">
+      <button class="swatch is-selected" data-color="#0b0d12" aria-label="Čierna metalíza" title="Čierna metalíza" aria-pressed="true"></button>
+      <button class="swatch" data-color="#8f1025" aria-label="Karmínová červená" title="Karmínová červená" aria-pressed="false"></button>
+      <button class="swatch" data-color="#123c8c" aria-label="Kráľovská modrá" title="Kráľovská modrá" aria-pressed="false"></button>
+      <button class="swatch" data-color="#c5cbd2" aria-label="Kvapalinová strieborná" title="Kvapalinová strieborná" aria-pressed="false"></button>
+      <button class="swatch" data-color="#075c46" aria-label="Smaragdová" title="Smaragdová" aria-pressed="false"></button>
     </div>
   </div>
 
@@ -120,29 +122,51 @@
     </div>
   </div>
 
-  <!-- Modálne okno: Servisný zoznam a Rezervácia -->
-  <div class="modal-backdrop hidden" id="cart-modal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2>Váš servisný zoznam & Rezervácia</h2>
-        <button class="close-btn" data-close-modal>✕</button>
-      </div>
-      <div id="cart-items-container"></div>
+  <div class="cart-backdrop hidden" id="cart-backdrop">
+    <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+      <header class="drawer-header">
+        <div>
+          <span class="drawer-eyebrow">D&T CARS • BRATISLAVA</span>
+          <h2 id="cart-title">Servisný plán <span class="drawer-count" id="drawer-count" aria-live="polite" aria-atomic="true">0</span></h2>
+        </div>
+        <button class="close-btn" id="close-cart-btn" aria-label="Zavrieť servisný plán">✕</button>
+      </header>
 
-      <form id="booking-form" class="booking-form">
-        <h3>Kontaktné údaje pre objednávku</h3>
-        <div class="form-row">
-          <input type="text" id="cust-name" placeholder="Meno a priezvisko *" required />
-          <input type="tel" id="cust-phone" placeholder="Telefónne číslo *" required />
+      <div class="drawer-content">
+        <div class="cart-list-header">
+          <h3>Vybrané služby</h3>
+          <button type="button" class="text-button" id="clear-cart-btn">Vyprázdniť</button>
         </div>
-        <div class="form-row">
-          <input type="email" id="cust-email" placeholder="Váš e-mail" />
-          <input type="text" id="cust-car" placeholder="Značka a model auta / ŠPZ (napr. Škoda Octavia)" />
-        </div>
-        <button type="submit" class="btn btn-primary btn-full">Odoslať nezáväzný dopyt do D&T CARS</button>
-      </form>
-    </div>
+        <div id="cart-items-container"></div>
+
+        <form id="booking-form" class="booking-form">
+          <h3>Kontaktné údaje a termín</h3>
+          <div class="form-row">
+            <input type="text" id="cust-name" placeholder="Meno a priezvisko *" autocomplete="name" required />
+            <input type="tel" id="cust-phone" placeholder="Telefónne číslo *" autocomplete="tel" required />
+          </div>
+          <div class="form-row">
+            <input type="email" id="cust-email" placeholder="Váš e-mail" autocomplete="email" />
+            <input type="text" id="cust-car" placeholder="Značka a model vozidla" />
+          </div>
+          <div class="form-row">
+            <input type="text" id="cust-plate" placeholder="ŠPZ" />
+            <div class="form-row form-row-compact">
+              <input type="date" id="cust-date" aria-label="Preferovaný dátum návštevy" />
+              <input type="time" id="cust-time" aria-label="Preferovaný čas návštevy" />
+            </div>
+          </div>
+          <div class="drawer-actions">
+            <button type="button" class="btn btn-secondary btn-full" id="copy-order-btn">Kopírovať rekapituláciu</button>
+            <button type="submit" class="btn btn-primary btn-full">Pokračovať e-mailom</button>
+          </div>
+          <p class="form-hint">Odoslanie otvorí váš e-mailový program s pripravenou objednávkou.</p>
+        </form>
+      </div>
+    </aside>
   </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="js/main.js"></script>
 </body>
