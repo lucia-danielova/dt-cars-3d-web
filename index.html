@@ -19,8 +19,8 @@
   </script>
 </head>
 <body>
-  <!-- 3D Plátno -->
-  <div id="canvas-container"></div>
+  <div id="canvas-container" aria-label="Interaktívny 3D model vozidla"></div>
+  <div id="hotspots-overlay" role="group" aria-label="Diagnostické zóny vozidla"></div>
 
   <!-- Horná navigačná lišta -->
   <header class="topbar">
@@ -33,87 +33,53 @@
     </div>
 
     <nav class="top-actions" aria-label="Hlavná navigácia">
-      <button class="btn btn-ghost" data-modal="services-modal">Všetky služby (8)</button>
-      <button class="btn btn-ghost" data-modal="contact-modal">Kontakt & Adresa</button>
+      <button class="btn btn-ghost" data-modal="services-modal">Služby</button>
+      <button class="btn btn-ghost" data-modal="contact-modal">Kontakt</button>
       <button class="btn btn-primary" id="open-cart-btn">
-        Objednať servis <span class="badge" id="cart-count" aria-label="Počet vybraných položiek">0</span>
+        Dopyt <span class="badge" id="cart-count" aria-label="Počet vybraných položiek">0</span>
       </button>
     </nav>
   </header>
 
-  <!-- Ľavý panel: Výber zóny na 3D aute -->
-  <aside class="hud-left">
-    <div class="hud-card">
-      <span class="hud-eyebrow">D&T CARS · Bratislava-Petržalka</span>
-      <h2>Servis, ktorý drží krok.</h2>
-      <p class="hud-sub">Vyberte oblasť problému priamo na 3D modeli alebo zo zoznamu nižšie:</p>
-
-      <div class="zone-buttons">
-        <button class="zone-btn" data-zone="engine">
-          <strong>1. Motor, chladenie & klíma</strong>
-          <span>Kapota • Chladivo • Výmena oleja</span>
-        </button>
-        <button class="zone-btn" data-zone="wheels">
-          <strong>2. Kolesá, pneu, disky & brzdy</strong>
-          <span>Prezúvanie • Uskladnenie • Predaj</span>
-        </button>
-        <button class="zone-btn" data-zone="cabin">
-          <strong>3. Kabína & Ventilácia</strong>
-          <span>Dezinfekcia klimatizácie ozónom</span>
-        </button>
-        <button class="zone-btn" data-zone="exhaust">
-          <strong>4. Zadná náprava & Diely</strong>
-          <span>Výfuk • Podvozok • Náhradné diely</span>
-        </button>
-      </div>
-
-      <div class="car-controls">
-        <span class="hud-eyebrow">Ovládanie 3D modelu</span>
-        <div class="control-row">
-          <button class="btn-mini" id="toggle-hood">Kapota</button>
-          <button class="btn-mini" id="toggle-doors">Dvere</button>
-          <button class="btn-mini" id="toggle-wheels">Vysunúť kolesá</button>
-          <button class="btn-mini" id="reset-cam">Reset pohľadu</button>
-        </div>
-
-        <div class="color-swatches">
-          <span>Farba laku</span>
-          <button class="swatch" data-color="#d90429" aria-label="Červený lak" title="Červená"></button>
-          <button class="swatch" data-color="#1d4ed8" aria-label="Modrý lak" title="Modrá"></button>
-          <button class="swatch" data-color="#e2e8f0" aria-label="Strieborný lak" title="Strieborná"></button>
-          <button class="swatch" data-color="#18181b" aria-label="Čierny lak" title="Čierna"></button>
-          <button class="swatch" data-color="#10b981" aria-label="Zelený lak" title="Zelená"></button>
-        </div>
-      </div>
+  <div class="floating-dock" aria-label="Ovládanie 3D modelu">
+    <button class="btn-mini" id="toggle-hood">Kapota</button>
+    <button class="btn-mini" id="toggle-doors">Dvere</button>
+    <button class="btn-mini" id="toggle-wheels">Kolesá</button>
+    <button class="btn-mini" id="reset-cam">Reset</button>
+    <span class="dock-divider" aria-hidden="true"></span>
+    <div class="color-swatches" aria-label="Farba laku">
+      <button class="swatch" data-color="#d90429" aria-label="Červený lak" title="Červená"></button>
+      <button class="swatch" data-color="#1d4ed8" aria-label="Modrý lak" title="Modrá"></button>
+      <button class="swatch" data-color="#e2e8f0" aria-label="Strieborný lak" title="Strieborná"></button>
+      <button class="swatch" data-color="#18181b" aria-label="Čierny lak" title="Čierna"></button>
+      <button class="swatch" data-color="#10b981" aria-label="Zelený lak" title="Zelená"></button>
     </div>
-  </aside>
+  </div>
 
-  <!-- Pravý panel: Detail vybranej zóny a pridanie problému -->
-  <aside class="hud-right hidden" id="zone-panel">
-    <div class="hud-card">
-      <div class="panel-header">
-        <span class="zone-tag" id="zone-badge">Zóna</span>
-        <button class="close-btn" id="close-zone-panel" aria-label="Zavrieť">✕</button>
-      </div>
-      <h2 id="zone-title">Názov zóny</h2>
-
-      <div class="form-group">
-        <label>Požadované služby v tejto zóne:</label>
-        <div id="zone-services-list" class="checkbox-list"></div>
-      </div>
-
-      <div class="form-group">
-        <label>Časté prejavy (kliknutím pridáte do popisu):</label>
-        <div id="zone-symptoms" class="symptom-chips"></div>
-      </div>
-
-      <div class="form-group">
-        <label for="problem-note">Popis problému / rozmer pneu / ŠPZ:</label>
-        <textarea id="problem-note" rows="3" placeholder="Napr. Klíma slabo chladí, alebo rozmer 205/55 R16..."></textarea>
-      </div>
-
-      <button class="btn btn-primary btn-full" id="add-to-cart-btn">+ Pridať do servisného zoznamu</button>
+  <aside class="glass-popover hidden" id="zone-panel" aria-labelledby="zone-title" aria-describedby="zone-badge" role="dialog" aria-modal="false">
+    <div class="panel-header">
+      <span class="zone-tag" id="zone-badge">Zóna</span>
+      <button class="close-btn" id="close-zone-panel" aria-label="Zavrieť">✕</button>
     </div>
+    <h2 id="zone-title">Názov zóny</h2>
+
+    <div class="form-group">
+      <label>Požadované služby v tejto zóne:</label>
+      <div id="zone-services-list" class="checkbox-list"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Časté prejavy (kliknutím pridáte do popisu):</label>
+      <div id="zone-symptoms" class="symptom-chips"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="problem-note">Popis problému / rozmer pneu / ŠPZ:</label>
+      <textarea id="problem-note" rows="3" placeholder="Napr. Klíma slabo chladí, alebo rozmer 205/55 R16..."></textarea>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="add-to-cart-btn">+ Pridať do servisného zoznamu</button>
+    <p class="zone-feedback" id="zone-feedback" role="status" aria-live="polite"></p>
   </aside>
 
   <!-- Spodná lišta s rýchlym kontaktom -->
