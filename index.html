@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D&T CARS s.r.o. | 3D Interaktívny Autoservis & Pneuservis Bratislava</title>
+  <meta name="description" content="Interaktívny autoservis a pneuservis D&T CARS v Bratislave-Petržalke. Vyberte si službu, opíšte problém a pošlite nezáväzný dopyt." />
+  <meta name="theme-color" content="#090c12" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/hud-overlay.css" />
   <!-- Import map pre Three.js (bez nutnosti inštalovať Node.js) -->
@@ -30,11 +32,11 @@
       </div>
     </div>
 
-    <nav class="top-actions">
+    <nav class="top-actions" aria-label="Hlavná navigácia">
       <button class="btn btn-ghost" data-modal="services-modal">Všetky služby (8)</button>
       <button class="btn btn-ghost" data-modal="contact-modal">Kontakt & Adresa</button>
       <button class="btn btn-primary" id="open-cart-btn">
-        Servisný zoznam <span class="badge" id="cart-count">0</span>
+        Objednať servis <span class="badge" id="cart-count" aria-label="Počet vybraných položiek">0</span>
       </button>
     </nav>
   </header>
@@ -42,8 +44,8 @@
   <!-- Ľavý panel: Výber zóny na 3D aute -->
   <aside class="hud-left">
     <div class="hud-card">
-      <span class="hud-eyebrow">Interaktívna diagnostika</span>
-      <h2>Kliknite na časť auta</h2>
+      <span class="hud-eyebrow">D&T CARS · Bratislava-Petržalka</span>
+      <h2>Servis, ktorý drží krok.</h2>
       <p class="hud-sub">Vyberte oblasť problému priamo na 3D modeli alebo zo zoznamu nižšie:</p>
 
       <div class="zone-buttons">
@@ -74,13 +76,13 @@
           <button class="btn-mini" id="reset-cam">Reset pohľadu</button>
         </div>
 
-        <div class="color-swatches" style="display:flex; gap:8px; margin-top:12px; align-items:center;">
-          <span style="font-size:0.75rem; color:var(--text-muted);">Farba laku:</span>
-          <button class="swatch" data-color="#d90429" title="Červená" style="width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:#d90429;cursor:pointer;"></button>
-          <button class="swatch" data-color="#1d4ed8" title="Modrá" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#1d4ed8;cursor:pointer;"></button>
-          <button class="swatch" data-color="#e2e8f0" title="Strieborná" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#e2e8f0;cursor:pointer;"></button>
-          <button class="swatch" data-color="#18181b" title="Čierna" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#18181b;cursor:pointer;"></button>
-          <button class="swatch" data-color="#10b981" title="Zelená" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#10b981;cursor:pointer;"></button>
+        <div class="color-swatches">
+          <span>Farba laku</span>
+          <button class="swatch" data-color="#d90429" aria-label="Červený lak" title="Červená"></button>
+          <button class="swatch" data-color="#1d4ed8" aria-label="Modrý lak" title="Modrá"></button>
+          <button class="swatch" data-color="#e2e8f0" aria-label="Strieborný lak" title="Strieborná"></button>
+          <button class="swatch" data-color="#18181b" aria-label="Čierny lak" title="Čierna"></button>
+          <button class="swatch" data-color="#10b981" aria-label="Zelený lak" title="Zelená"></button>
         </div>
       </div>
     </div>
@@ -145,7 +147,7 @@
         <p><strong>Mobil 2:</strong> <a href="tel:0908745865">0908 745 865</a></p>
         <p><strong>Pevná linka:</strong> <a href="tel:0262316259">02 62316259</a></p>
         <p><strong>E-mail:</strong> <a href="mailto:dtcars@dtcars.sk">dtcars@dtcars.sk</a></p>
-        <a href="https://maps.google.com/?q=Kočánková+7,+851+04+Bratislava" target="_blank" rel="noopener" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <a href="https://maps.google.com/?q=Kočánková+7,+851+04+Bratislava" target="_blank" rel="noopener" class="btn btn-primary btn-full map-link">
           Otvoriť navigáciu v Google Maps
         </a>
       </div>

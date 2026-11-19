@@ -65,6 +65,7 @@ function selectZone(zoneId) {
   });
 
   document.getElementById('zone-panel').classList.remove('hidden');
+  document.body.classList.add('zone-open');
 }
 
 // Prepojenie hotspotov na 3D aute
@@ -93,6 +94,7 @@ document.getElementById('reset-cam').addEventListener('click', () => {
 
 document.getElementById('close-zone-panel').addEventListener('click', () => {
   document.getElementById('zone-panel').classList.add('hidden');
+  document.body.classList.remove('zone-open');
 });
 
 // Pridanie do servisného zoznamu
@@ -117,6 +119,7 @@ document.getElementById('add-to-cart-btn').addEventListener('click', () => {
 
   updateCartUI();
   document.getElementById('zone-panel').classList.add('hidden');
+  document.body.classList.remove('zone-open');
 });
 
 function updateCartUI() {
