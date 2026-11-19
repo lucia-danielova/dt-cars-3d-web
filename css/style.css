@@ -1,21 +1,48 @@
 :root {
   color-scheme: dark;
-  --bg-dark: #090c12;
-  --panel-bg: rgba(15, 20, 29, 0.88);
-  --panel-raised: rgba(24, 30, 42, 0.94);
+  --bg-dark: #090a0d;
+  --panel-bg: rgba(20, 22, 27, 0.92);
+  --panel-raised: rgba(27, 30, 36, 0.96);
   --border-color: rgba(255, 255, 255, 0.1);
-  --accent: #f04452;
-  --accent-hover: #ff5966;
+  --accent: #16a34a;
+  --accent-hover: #22c55e;
   --text-main: #f6f7fa;
   --text-muted: #a0a9b8;
   --radius: 18px;
   --shadow-panel: 0 24px 70px rgba(0, 0, 0, 0.4);
 }
 
+.open-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #86efac;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.open-status span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+.form-row-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 html {
@@ -30,7 +57,7 @@ body {
   overflow: hidden;
   color: var(--text-main);
   background:
-    radial-gradient(ellipse at 68% 48%, rgba(35, 44, 60, 0.34), transparent 44%),
+    radial-gradient(ellipse at 68% 48%, rgba(37, 43, 52, 0.28), transparent 44%),
     var(--bg-dark);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -51,7 +78,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #ff7b84;
+  outline: 2px solid #4ade80;
   outline-offset: 3px;
 }
 
@@ -99,8 +126,8 @@ textarea:focus-visible {
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
-  background: linear-gradient(145deg, #ff5966, #bd2639);
-  box-shadow: 0 8px 28px rgba(240, 68, 82, 0.26);
+  background: linear-gradient(145deg, #292d34, #14161b);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.34);
   color: #fff;
   font-size: 0.94rem;
   font-weight: 850;
@@ -114,7 +141,7 @@ textarea:focus-visible {
 }
 
 .brand h1 span {
-  color: #ff7882;
+  color: #b6c0cd;
   font-weight: 500;
 }
 
@@ -154,18 +181,18 @@ textarea:focus-visible {
 
 .btn-primary {
   border-color: rgba(255, 255, 255, 0.12);
-  background: linear-gradient(135deg, #f34b59, #d83245);
-  box-shadow: 0 8px 24px rgba(220, 48, 65, 0.24);
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.22);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #ff606c, #e63c50);
+  background: linear-gradient(135deg, #4ade80, #16a34a);
 }
 
 .btn-primary.is-added {
-  background: linear-gradient(135deg, #20a46b, #168356);
-  box-shadow: 0 8px 24px rgba(32, 164, 107, 0.22);
+  background: linear-gradient(135deg, #4ade80, #15803d);
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.22);
 }
 
 .btn-ghost {
@@ -176,8 +203,19 @@ textarea:focus-visible {
 }
 
 .btn-ghost:hover {
-  border-color: rgba(255, 120, 130, 0.56);
+  border-color: rgba(34, 197, 94, 0.48);
   background: rgba(35, 40, 51, 0.88);
+}
+
+.btn-secondary {
+  border-color: rgba(34, 197, 94, 0.25);
+  background: rgba(22, 163, 74, 0.1);
+  color: #c7f9d5;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(22, 163, 74, 0.18);
 }
 
 .btn-full {
@@ -221,7 +259,7 @@ textarea:focus-visible {
 
 .bottom-bar a:hover,
 .contact-details a:hover {
-  color: #ff7882;
+  color: #4ade80;
 }
 
 .modal-backdrop {
@@ -285,8 +323,8 @@ textarea:focus-visible {
 }
 
 .close-btn:hover {
-  border-color: rgba(255, 120, 130, 0.6);
-  background: rgba(240, 68, 82, 0.14);
+  border-color: rgba(34, 197, 94, 0.52);
+  background: rgba(22, 163, 74, 0.12);
 }
 
 .services-grid {
@@ -309,11 +347,11 @@ textarea:focus-visible {
 
 .service-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 120, 130, 0.42);
+  border-color: rgba(34, 197, 94, 0.36);
 }
 
 .service-card small {
-  color: #ff7a84;
+  color: #86efac;
   font-size: 0.67rem;
   font-weight: 750;
   letter-spacing: 0.09em;
@@ -340,7 +378,7 @@ textarea:focus-visible {
 }
 
 .contact-details a {
-  color: #ff7a84;
+  color: #86efac;
   text-decoration: none;
 }
 
@@ -388,7 +426,7 @@ textarea::placeholder {
 
 input:focus,
 textarea:focus {
-  border-color: rgba(255, 120, 130, 0.72);
+  border-color: rgba(34, 197, 94, 0.65);
   background: rgba(255, 255, 255, 0.065);
   outline: none;
 }
@@ -426,6 +464,14 @@ textarea {
     display: none;
   }
 
+  .open-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 8px;
+    font-size: 0.61rem;
+  }
+
   .top-actions {
     display: grid;
     width: 100%;
@@ -445,6 +491,10 @@ textarea {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-row-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bottom-bar {
