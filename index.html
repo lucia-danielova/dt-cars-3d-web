@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D&T CARS s.r.o. | 3D Interaktívny Autoservis & Pneuservis Bratislava</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/hud-overlay.css" />
+  <!-- Import map pre Three.js (bez nutnosti inštalovať Node.js) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D Plátno -->
+  <div id="canvas-container"></div>
+
+  <!-- Horná navigačná lišta -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-badge">D&T</div>
+      <div>
+        <h1>D&T CARS <span>s.r.o.</span></h1>
+        <p>Autoservis • Pneuservis • Klimatizácie • Bratislava - Petržalka</p>
+      </div>
+    </div>
+
+    <nav class="top-actions">
+      <button class="btn btn-ghost" data-modal="services-modal">Všetky služby (8)</button>
+      <button class="btn btn-ghost" data-modal="contact-modal">Kontakt & Adresa</button>
+      <button class="btn btn-primary" id="open-cart-btn">
+        Servisný zoznam <span class="badge" id="cart-count">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Ľavý panel: Výber zóny na 3D aute -->
+  <aside class="hud-left">
+    <div class="hud-card">
+      <span class="hud-eyebrow">Interaktívna diagnostika</span>
+      <h2>Kliknite na časť auta</h2>
+      <p class="hud-sub">Vyberte oblasť problému priamo na 3D modeli alebo zo zoznamu nižšie:</p>
+
+      <div class="zone-buttons">
+        <button class="zone-btn" data-zone="engine">
+          <strong>1. Motor, chladenie & klíma</strong>
+          <span>Kapota • Chladivo • Výmena oleja</span>
+        </button>
+        <button class="zone-btn" data-zone="wheels">
+          <strong>2. Kolesá, pneu, disky & brzdy</strong>
+          <span>Prezúvanie • Uskladnenie • Predaj</span>
+        </button>
+        <button class="zone-btn" data-zone="cabin">
+          <strong>3. Kabína & Ventilácia</strong>
+          <span>Dezinfekcia klimatizácie ozónom</span>
+        </button>
+        <button class="zone-btn" data-zone="exhaust">
+          <strong>4. Zadná náprava & Diely</strong>
+          <span>Výfuk • Podvozok • Náhradné diely</span>
+        </button>
+      </div>
+
+      <div class="car-controls">
+        <span class="hud-eyebrow">Ovládanie 3D modelu</span>
+        <div class="control-row">
+          <button class="btn-mini" id="toggle-hood">Kapota</button>
+          <button class="btn-mini" id="toggle-doors">Dvere</button>
+          <button class="btn-mini" id="toggle-wheels">Vysunúť kolesá</button>
+          <button class="btn-mini" id="reset-cam">Reset pohľadu</button>
+        </div>
+
+        <div class="color-swatches" style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">Farba laku:</span>
+          <button class="swatch" data-color="#d90429" title="Červená" style="width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:#d90429;cursor:pointer;"></button>
+          <button class="swatch" data-color="#1d4ed8" title="Modrá" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#1d4ed8;cursor:pointer;"></button>
+          <button class="swatch" data-color="#e2e8f0" title="Strieborná" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#e2e8f0;cursor:pointer;"></button>
+          <button class="swatch" data-color="#18181b" title="Čierna" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#18181b;cursor:pointer;"></button>
+          <button class="swatch" data-color="#10b981" title="Zelená" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);background:#10b981;cursor:pointer;"></button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Pravý panel: Detail vybranej zóny a pridanie problému -->
+  <aside class="hud-right hidden" id="zone-panel">
+    <div class="hud-card">
+      <div class="panel-header">
+        <span class="zone-tag" id="zone-badge">Zóna</span>
+        <button class="close-btn" id="close-zone-panel" aria-label="Zavrieť">✕</button>
+      </div>
+      <h2 id="zone-title">Názov zóny</h2>
+
+      <div class="form-group">
+        <label>Požadované služby v tejto zóne:</label>
+        <div id="zone-services-list" class="checkbox-list"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Časté prejavy (kliknutím pridáte do popisu):</label>
+        <div id="zone-symptoms" class="symptom-chips"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="problem-note">Popis problému / rozmer pneu / ŠPZ:</label>
+        <textarea id="problem-note" rows="3" placeholder="Napr. Klíma slabo chladí, alebo rozmer 205/55 R16..."></textarea>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="add-to-cart-btn">+ Pridať do servisného zoznamu</button>
+    </div>
+  </aside>
+
+  <!-- Spodná lišta s rýchlym kontaktom -->
+  <footer class="bottom-bar">
+    <span>📍 Kočánková 7, 851 04 Bratislava - Petržalka</span>
+    <span>📞 <a href="tel:0905228241">0905 228 241</a> | <a href="tel:0908745865">0908 745 865</a> | <a href="tel:0262316259">02 62316259</a></span>
+    <span>✉️ <a href="mailto:dtcars@dtcars.sk">dtcars@dtcars.sk</a></span>
+  </footer>
+
+  <!-- Modálne okno: Všetky služby -->
+  <div class="modal-backdrop hidden" id="services-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Kompletná ponuka služieb — D&T CARS s.r.o.</h2>
+        <button class="close-btn" data-close-modal>✕</button>
+      </div>
+      <div id="all-services-grid" class="services-grid"></div>
+    </div>
+  </div>
+
+  <!-- Modálne okno: Kontakt -->
+  <div class="modal-backdrop hidden" id="contact-modal">
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h2>Kontakt — D&T CARS s.r.o.</h2>
+        <button class="close-btn" data-close-modal>✕</button>
+      </div>
+      <div class="contact-details">
+        <p><strong>Prevádzka:</strong> Kočánková 7, 851 04 Bratislava - Petržalka</p>
+        <p><strong>Mobil 1:</strong> <a href="tel:0905228241">0905 228 241</a></p>
+        <p><strong>Mobil 2:</strong> <a href="tel:0908745865">0908 745 865</a></p>
+        <p><strong>Pevná linka:</strong> <a href="tel:0262316259">02 62316259</a></p>
+        <p><strong>E-mail:</strong> <a href="mailto:dtcars@dtcars.sk">dtcars@dtcars.sk</a></p>
+        <a href="https://maps.google.com/?q=Kočánková+7,+851+04+Bratislava" target="_blank" rel="noopener" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+          Otvoriť navigáciu v Google Maps
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modálne okno: Servisný zoznam a Rezervácia -->
+  <div class="modal-backdrop hidden" id="cart-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Váš servisný zoznam & Rezervácia</h2>
+        <button class="close-btn" data-close-modal>✕</button>
+      </div>
+      <div id="cart-items-container"></div>
+
+      <form id="booking-form" class="booking-form">
+        <h3>Kontaktné údaje pre objednávku</h3>
+        <div class="form-row">
+          <input type="text" id="cust-name" placeholder="Meno a priezvisko *" required />
+          <input type="tel" id="cust-phone" placeholder="Telefónne číslo *" required />
+        </div>
+        <div class="form-row">
+          <input type="email" id="cust-email" placeholder="Váš e-mail" />
+          <input type="text" id="cust-car" placeholder="Značka a model auta / ŠPZ (napr. Škoda Octavia)" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Odoslať nezáväzný dopyt do D&T CARS</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

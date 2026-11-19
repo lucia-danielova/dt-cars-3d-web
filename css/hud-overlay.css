@@ -1,0 +1,205 @@
+.hud-left, .hud-right {
+  position: fixed;
+  top: 82px;
+  z-index: 10;
+  width: 330px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.hud-left {
+  left: 20px;
+}
+
+.hud-right {
+  right: 20px;
+  width: 360px;
+}
+
+.hud-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 18px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.hud-eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.hud-card h2 {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+
+.hud-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.zone-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.zone-btn {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zone-btn strong {
+  font-size: 0.88rem;
+}
+
+.zone-btn span {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.zone-btn:hover, .zone-btn.active {
+  border-color: var(--accent);
+  background: rgba(230, 57, 70, 0.14);
+}
+
+.car-controls {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.control-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.btn-mini {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.btn-mini:hover {
+  border-color: var(--accent);
+}
+
+/* Pravý diagnostický panel */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.zone-tag {
+  background: rgba(230, 57, 70, 0.2);
+  color: #ff758f;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.form-group {
+  margin: 14px 0;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.checkbox-item input {
+  width: auto;
+  accent-color: var(--accent);
+}
+
+.symptom-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.75rem;
+  padding: 5px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.cart-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .hud-left, .hud-right {
+    width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: 48px;
+    max-height: 44vh;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
