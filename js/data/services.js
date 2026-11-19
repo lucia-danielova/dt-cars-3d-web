@@ -114,7 +114,7 @@ export const DIAGNOSTIC_ZONES = {
     id: "exhaust",
     label: "Zadná náprava, výfuk & diely",
     badge: "Zóna 4 — Zadná časť",
-    action: "openTrunk",
+    action: "inspectWheels",
     cameraPos: [-2.6, 1.6, -3.2],
     cameraTarget: [0, 0.65, -1.3],
     serviceIds: ["autoservis", "predaj-nahradnych-dielov"],

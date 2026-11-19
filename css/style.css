@@ -163,6 +163,11 @@ textarea:focus-visible {
   background: linear-gradient(135deg, #ff606c, #e63c50);
 }
 
+.btn-primary.is-added {
+  background: linear-gradient(135deg, #20a46b, #168356);
+  box-shadow: 0 8px 24px rgba(32, 164, 107, 0.22);
+}
+
 .btn-ghost {
   border-color: var(--border-color);
   background: rgba(18, 23, 33, 0.7);
@@ -423,11 +428,15 @@ textarea {
 
   .top-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
   }
 
   .top-actions .btn {
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     min-height: 36px;
     padding: 7px 8px;
@@ -447,16 +456,6 @@ textarea {
 
   .bottom-bar span:last-child {
     display: none;
-  }
-}
-
-@media (max-width: 360px) {
-  .top-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .top-actions .btn:last-child {
-    grid-column: 1 / -1;
   }
 }
 
