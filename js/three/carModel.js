@@ -10,21 +10,21 @@ export function buildCarModel(scene) {
     doorsOpen: false,
     wheelsExpanded: false
   };
-  const wheelParts = [];
-  let bodyMaterial = null;
+  const bodyMaterials = new Set();
+  const wheels = [];
   let bodyColor = '#0b0d12';
 
   function setBodyColor(hexColor) {
     bodyColor = hexColor;
-    if (bodyMaterial) bodyMaterial.color.set(hexColor);
+    bodyMaterials.forEach((material) => material.color.set(hexColor));
   }
 
   function updateCarAnimations() {
-    wheelParts.forEach((wheel) => {
-      const offset = state.wheelsExpanded ? Math.sign(wheel.baseX) * 0.45 : 0;
-      const targetX = wheel.baseX + offset;
-      wheel.node.position.x += (targetX - wheel.node.position.x) * 0.1;
-      wheel.node.rotation.x += 0.015;
+    wheels.forEach((wheel) => {
+      const offset = state.wheelsExpanded ? wheel.userData.side * 0.45 : 0;
+      const targetX = wheel.userData.baseX + offset;
+      wheel.position.x += (targetX - wheel.position.x) * 0.1;
+      wheel.rotation.x += 0.015;
     });
   }
 
@@ -33,33 +33,50 @@ export function buildCarModel(scene) {
     new URL('../../models/Chevrolet_Camaro_SS.glb', import.meta.url).href,
     (gltf) => {
       const model = gltf.scene;
-      model.updateMatrixWorld(true);
 
       const bounds = new THREE.Box3().setFromObject(model);
       const size = bounds.getSize(new THREE.Vector3());
-      const center = bounds.getCenter(new THREE.Vector3());
-      const scale = 4.4 / size.z;
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (maxDim > 0) model.scale.setScalar(4.4 / maxDim);
 
-      model.scale.setScalar(scale);
-      model.position.set(-center.x * scale, -bounds.min.y * scale, -center.z * scale);
+      const scaledBounds = new THREE.Box3().setFromObject(model);
+      const center = scaledBounds.getCenter(new THREE.Vector3());
+      model.position.set(-center.x, -scaledBounds.min.y, -center.z);
       carGroup.add(model);
-      model.updateMatrixWorld(true);
 
+      const bodyMaterialCopies = new Map();
+      const wheelNames = ['Rueda_Ad_De', 'Rueda_Ad_Iz', 'Rueda_At_De', 'Rueda_At_Iz'];
       model.traverse((node) => {
         if (node.isMesh) {
           node.castShadow = true;
           node.receiveShadow = true;
-          const materials = Array.isArray(node.material) ? node.material : [node.material];
-          materials.forEach((material) => {
-            if (material.name === 'Material') {
-              bodyMaterial = material;
-              material.color.set(bodyColor);
+
+          const applyBodyFinish = (material) => {
+            if (material.name !== 'Material') return material;
+
+            let bodyMaterial = bodyMaterialCopies.get(material);
+            if (!bodyMaterial) {
+              bodyMaterial = new THREE.MeshPhysicalMaterial().copy(material);
+              bodyMaterial.metalness = 0.85;
+              bodyMaterial.roughness = 0.22;
+              bodyMaterial.clearcoat = 1;
+              bodyMaterial.clearcoatRoughness = 0.08;
+              bodyMaterial.color.set(bodyColor);
+              bodyMaterialCopies.set(material, bodyMaterial);
+              bodyMaterials.add(bodyMaterial);
             }
-          });
+            return bodyMaterial;
+          };
+
+          node.material = Array.isArray(node.material)
+            ? node.material.map(applyBodyFinish)
+            : applyBodyFinish(node.material);
         }
 
-        if (/^Rueda_(Ad|At)_/.test(node.name)) {
-          wheelParts.push({ node, baseX: node.position.x });
+        if (wheelNames.includes(node.name)) {
+          node.userData.baseX = node.position.x;
+          node.userData.side = node.position.x >= 0 ? 1 : -1;
+          wheels.push(node);
         }
       });
     },
