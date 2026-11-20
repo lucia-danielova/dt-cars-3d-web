@@ -57,13 +57,15 @@ export function buildCarModel(scene) {
 
       const bodyMaterialCopies = new Map();
       const wheelNames = ['Rueda_Ad_De', 'Rueda_Ad_Iz', 'Rueda_At_De', 'Rueda_At_Iz'];
+      const proxyMeshNames = new Set(['Cubo.002', 'Cubo.004', 'Camaro_SS']);
       let doorsNode = null;
       model.traverse((node) => {
         if (node.isMesh) {
           node.castShadow = true;
           node.receiveShadow = true;
 
-          const isProxyMesh = node.name === 'Cubo.002' || node.geometry.name === 'Cubo.002';
+          const isProxyMesh = proxyMeshNames.has(node.name) ||
+            proxyMeshNames.has(node.geometry.name);
           if (isProxyMesh) {
             const hideProxyMaterial = (material) => {
               const hiddenMaterial = material.clone();
