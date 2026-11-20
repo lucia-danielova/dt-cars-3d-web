@@ -38,10 +38,91 @@
       <button class="btn btn-ghost" data-modal="services-modal">Služby</button>
       <button class="btn btn-ghost" data-modal="contact-modal">Kontakt</button>
       <button class="btn btn-primary" id="open-cart-btn">
-        Dopyt <span class="badge" id="cart-count" aria-label="Počet vybraných položiek" aria-live="polite" aria-atomic="true">0</span>
+        Zoznam <span class="badge" id="cart-count" aria-label="Počet vybraných položiek" aria-live="polite" aria-atomic="true">0</span>
       </button>
     </nav>
   </header>
+
+  <main class="showroom-content">
+    <section class="hero-copy" aria-labelledby="hero-title">
+      <span class="hero-eyebrow"><span aria-hidden="true"></span> D&T CARS • BRATISLAVA</span>
+      <h2 id="hero-title">Máte problém s autom? <span>Diagnostikujte ho v 3D.</span></h2>
+      <p>Kliknite na časť vozidla a vyberte si servis. Váš dopyt pripravíme rýchlo a bez záväzkov.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="start-diagnostics-btn">Spustiť diagnostiku <span aria-hidden="true">↗</span></button>
+        <button class="btn btn-ghost" data-modal="services-modal">Ako to funguje?</button>
+      </div>
+      <div class="hero-note">
+        <span class="hero-note-icon" aria-hidden="true">i</span>
+        <span>Vyberte zónu na aute. My vám navrhneme vhodnú službu.</span>
+      </div>
+    </section>
+
+    <aside class="quick-booking" aria-labelledby="quick-booking-title">
+      <div class="booking-card-heading">
+        <span class="card-eyebrow">JEDNODUCHO A RÝCHLO</span>
+        <h2 id="quick-booking-title">Predbežná kalkulačka <span>& rezervácia</span></h2>
+      </div>
+      <ol class="booking-steps" aria-label="Postup rezervácie">
+        <li class="is-current"><span>1</span> Vozidlo</li>
+        <li><span>2</span> Služba</li>
+        <li><span>3</span> Termín</li>
+      </ol>
+      <label class="quick-field" for="quick-car-make">Značka vozidla
+        <select id="quick-car-make">
+          <option value="">Vyberte značku</option>
+          <option>Škoda</option>
+          <option>Volkswagen</option>
+          <option>Audi</option>
+          <option>BMW</option>
+          <option>Iná značka</option>
+        </select>
+      </label>
+      <label class="quick-field" for="quick-car-model">Model vozidla
+        <input id="quick-car-model" type="text" placeholder="Napr. Octavia, Tiguan..." autocomplete="off" />
+      </label>
+      <label class="quick-field" for="quick-service">Vyberte problém alebo službu
+        <select id="quick-service">
+          <option value="">Vyberte službu</option>
+          <option value="autoservis">Autoservis a diagnostika</option>
+          <option value="plnenie-klimatizacii">Klimatizácia</option>
+          <option value="dezinfekcia-ozonom">Dezinfekcia ozónom</option>
+          <option value="pneuservis">Pneuservis a brzdy</option>
+          <option value="predaj-pneumatik">Pneumatiky a disky</option>
+        </select>
+      </label>
+      <div class="estimate-note">
+        <span>Odhad ceny dielov a práce</span>
+        <strong>Podľa rozsahu servisu</strong>
+      </div>
+      <button class="btn btn-primary btn-full" id="quick-booking-btn">Rezervovať termín <span aria-hidden="true">→</span></button>
+      <p class="booking-footnote">Nezáväzný dopyt • Ozveme sa vám čo najskôr</p>
+    </aside>
+
+    <section class="service-showcase" aria-label="Obľúbené služby">
+      <button class="showcase-card" type="button" data-showcase-zone="engine">
+        <span class="showcase-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M7 12h3l2-3h8l2 3h3v11h-4v-3h-8v3H9v-7H7zm5 0-1 3h12l-2-3zm2 6v3h5v-3z"/><path d="M14 5h4v3h-4z"/></svg>
+        </span>
+        <span class="showcase-copy"><strong>Autoservis & pneuservis</strong><small>Kompletná starostlivosť o vaše auto</small></span>
+        <span class="showcase-arrow" aria-hidden="true">↗</span>
+      </button>
+      <button class="showcase-card" type="button" data-showcase-zone="wheels">
+        <span class="showcase-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="4"/><path d="m16 5 1 7m10 4-7 1m-4 10-1-7M5 16l7-1m11-7-4 6M8 24l5-5"/></svg>
+        </span>
+        <span class="showcase-copy"><strong>Pneumatiky a disky</strong><small>Prezutie, vyváženie aj nové obutie</small></span>
+        <span class="showcase-arrow" aria-hidden="true">↗</span>
+      </button>
+      <button class="showcase-card" type="button" data-showcase-zone="cabin">
+        <span class="showcase-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M16 3v26M5 9l22 14M5 23 27 9M12 5l4 4 4-4M12 27l4-4 4 4M4 13l6 1-1-6m19 11-6-1 1 6M4 19l6-1-1 6m19-11-6 1 1-6"/></svg>
+        </span>
+        <span class="showcase-copy"><strong>Klimatizácia & ozón</strong><small>Čistý vzduch v každej jazde</small></span>
+        <span class="showcase-arrow" aria-hidden="true">↗</span>
+      </button>
+    </section>
+  </main>
 
   <div class="floating-dock" aria-label="Ovládanie 3D modelu">
     <button class="btn-mini" id="toggle-hood">Kapota</button>
@@ -50,10 +131,10 @@
     <button class="btn-mini" id="reset-cam">Reset</button>
     <span class="dock-divider" aria-hidden="true"></span>
     <div class="color-swatches" role="group" aria-label="Farba laku">
-      <button class="swatch is-selected" data-color="#0b0d12" aria-label="Čierna metalíza" title="Čierna metalíza" aria-pressed="true"></button>
+      <button class="swatch" data-color="#0b0d12" aria-label="Čierna metalíza" title="Čierna metalíza" aria-pressed="false"></button>
       <button class="swatch" data-color="#8f1025" aria-label="Karmínová červená" title="Karmínová červená" aria-pressed="false"></button>
       <button class="swatch" data-color="#123c8c" aria-label="Kráľovská modrá" title="Kráľovská modrá" aria-pressed="false"></button>
-      <button class="swatch" data-color="#c5cbd2" aria-label="Kvapalinová strieborná" title="Kvapalinová strieborná" aria-pressed="false"></button>
+      <button class="swatch is-selected" data-color="#c5cbd2" aria-label="Kvapalinová strieborná" title="Kvapalinová strieborná" aria-pressed="true"></button>
       <button class="swatch" data-color="#075c46" aria-label="Smaragdová" title="Smaragdová" aria-pressed="false"></button>
     </div>
   </div>
@@ -86,9 +167,10 @@
 
   <!-- Spodná lišta s rýchlym kontaktom -->
   <footer class="bottom-bar">
-    <span>📍 Kočánková 7, 851 04 Bratislava - Petržalka</span>
-    <span>📞 <a href="tel:0905228241">0905 228 241</a> | <a href="tel:0908745865">0908 745 865</a> | <a href="tel:0262316259">02 62316259</a></span>
-    <span>✉️ <a href="mailto:dtcars@dtcars.sk">dtcars@dtcars.sk</a></span>
+    <span><small>Adresa</small>Kočánková 7, Bratislava – Petržalka</span>
+    <span><small>Telefón</small><a href="tel:0905228241">0905 228 241</a></span>
+    <span><small>E-mail</small><a href="mailto:dtcars@dtcars.sk">dtcars@dtcars.sk</a></span>
+    <span class="footer-open"><span aria-hidden="true"></span> Dnes sme tu pre vás</span>
   </footer>
 
   <!-- Modálne okno: Všetky služby -->

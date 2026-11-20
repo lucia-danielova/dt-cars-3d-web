@@ -3,8 +3,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export function createScene(container) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x090a0d);
-  scene.fog = new THREE.FogExp2(0x090a0d, 0.018);
+  scene.background = new THREE.Color(0x09131f);
+  scene.fog = new THREE.FogExp2(0x09131f, 0.018);
 
   const camera = new THREE.PerspectiveCamera(
     40,
@@ -12,8 +12,8 @@ export function createScene(container) {
     0.1,
     140
   );
-  const defaultCamPos = new THREE.Vector3(4.6, 2.7, 6.8);
-  const defaultTarget = new THREE.Vector3(0, 0.75, 0);
+  const defaultCamPos = new THREE.Vector3(0.35, 2.6, 8.5);
+  const defaultTarget = new THREE.Vector3(0, 1.4, 0);
   camera.position.copy(defaultCamPos);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -72,6 +72,30 @@ export function createScene(container) {
   floor.position.y = -0.02;
   floor.receiveShadow = true;
   scene.add(floor);
+
+  const platformMaterial = new THREE.MeshBasicMaterial({
+    color: 0x31d8c2,
+    transparent: true,
+    opacity: 0.76,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending
+  });
+  const platformRing = new THREE.Mesh(new THREE.TorusGeometry(3.35, 0.018, 8, 160), platformMaterial);
+  platformRing.rotation.x = -Math.PI / 2;
+  platformRing.position.y = 0.012;
+  const platformOuterRing = new THREE.Mesh(
+    new THREE.TorusGeometry(3.72, 0.012, 8, 160),
+    new THREE.MeshBasicMaterial({
+      color: 0xffae3a,
+      transparent: true,
+      opacity: 0.6,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending
+    })
+  );
+  platformOuterRing.rotation.x = -Math.PI / 2;
+  platformOuterRing.position.y = 0.009;
+  scene.add(platformRing, platformOuterRing);
 
   const wallMaterial = new THREE.MeshStandardMaterial({
     color: 0x0d1015,
@@ -158,6 +182,12 @@ export function createScene(container) {
   const frontFill = new THREE.PointLight(0xdce9ff, 4, 12, 2);
   frontFill.position.set(0, 3.2, 5.5);
   scene.add(frontFill);
+  const cyanFill = new THREE.PointLight(0x35dfd0, 1.8, 10, 2);
+  cyanFill.position.set(-4.2, 1.6, 1.8);
+  scene.add(cyanFill);
+  const amberFill = new THREE.PointLight(0xffad43, 2.2, 8, 2);
+  amberFill.position.set(0, 1.1, 4.1);
+  scene.add(amberFill);
 
   // Plynulá animácia kamery
   let targetCamPos = null;
