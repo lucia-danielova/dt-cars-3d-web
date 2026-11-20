@@ -63,7 +63,7 @@ export function buildCarModel(scene) {
           node.castShadow = true;
           node.receiveShadow = true;
 
-          const isProxyMesh = node.name === 'Carroceria';
+          const isProxyMesh = node.name === 'Cubo.002' || node.geometry.name === 'Cubo.002';
           if (isProxyMesh) {
             const hideProxyMaterial = (material) => {
               const hiddenMaterial = material.clone();
