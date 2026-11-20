@@ -6,33 +6,12 @@ export function buildCarModel(scene) {
   const carGroup = new THREE.Group();
   scene.add(carGroup);
 
-  const state = {
-    hoodOpen: false,
-    doorsOpen: false,
-    wheelsExpanded: false
-  };
   const bodyMaterials = new Set();
-  const wheels = [];
-  let doorPivot = null;
-  let bodyColor = '#0b0d12';
+  let bodyColor = '#c5cbd2';
 
   function setBodyColor(hexColor) {
     bodyColor = hexColor;
     bodyMaterials.forEach((material) => material.color.set(hexColor));
-  }
-
-  function updateCarAnimations() {
-    if (doorPivot) {
-      const targetRotation = state.doorsOpen ? -0.72 : 0;
-      doorPivot.rotation.y += (targetRotation - doorPivot.rotation.y) * 0.1;
-    }
-
-    wheels.forEach((wheel) => {
-      const offset = state.wheelsExpanded ? wheel.userData.side * 0.45 : 0;
-      const targetX = wheel.userData.baseX + offset;
-      wheel.position.x += (targetX - wheel.position.x) * 0.1;
-      wheel.rotation.x += 0.015;
-    });
   }
 
   const loader = new GLTFLoader();
@@ -41,9 +20,10 @@ export function buildCarModel(scene) {
   loader.setDRACOLoader(dracoLoader);
 
   loader.load(
-    new URL('../../models/Chevrolet_Camaro_SS.glb', import.meta.url).href,
+    new URL('../../assets/models/dt-cars-suv.glb', import.meta.url).href,
     (gltf) => {
       const model = gltf.scene;
+      model.rotation.x += Math.PI / 2;
 
       const bounds = new THREE.Box3().setFromObject(model);
       const size = bounds.getSize(new THREE.Vector3());
@@ -51,84 +31,42 @@ export function buildCarModel(scene) {
       if (maxDim > 0) model.scale.setScalar(4.4 / maxDim);
 
       const scaledBounds = new THREE.Box3().setFromObject(model);
+      const scaledSize = scaledBounds.getSize(new THREE.Vector3());
       const center = scaledBounds.getCenter(new THREE.Vector3());
       model.position.set(-center.x, -scaledBounds.min.y, -center.z);
       carGroup.add(model);
+      model.visible = false;
 
-      const bodyMaterialCopies = new Map();
-      const wheelNames = ['Rueda_Ad_De', 'Rueda_Ad_Iz', 'Rueda_At_De', 'Rueda_At_Iz'];
-      const proxyMeshNames = new Set(['Cubo.002', 'Cubo.004', 'Camaro_SS']);
-      let doorsNode = null;
-      model.traverse((node) => {
-        if (node.isMesh) {
-          node.castShadow = true;
-          node.receiveShadow = true;
-
-          const isProxyMesh = proxyMeshNames.has(node.name) ||
-            proxyMeshNames.has(node.geometry.name);
-          if (isProxyMesh) {
-            const hideProxyMaterial = (material) => {
-              const hiddenMaterial = material.clone();
-              hiddenMaterial.visible = false;
-              return hiddenMaterial;
-            };
-            node.material = Array.isArray(node.material)
-              ? node.material.map(hideProxyMaterial)
-              : hideProxyMaterial(node.material);
-          }
-
-          const applyBodyFinish = (material) => {
-            if (material.name !== 'Material') return material;
-
-            let bodyMaterial = bodyMaterialCopies.get(material);
-            if (!bodyMaterial) {
-              bodyMaterial = new THREE.MeshPhysicalMaterial().copy(material);
-              bodyMaterial.metalness = 0.85;
-              bodyMaterial.roughness = 0.22;
-              bodyMaterial.clearcoat = 1;
-              bodyMaterial.clearcoatRoughness = 0.08;
-              bodyMaterial.color.set(bodyColor);
-              bodyMaterialCopies.set(material, bodyMaterial);
-              bodyMaterials.add(bodyMaterial);
-            }
-            return bodyMaterial;
-          };
-
-          const updateMaterial = isProxyMesh ? (material) => material : applyBodyFinish;
-          node.material = Array.isArray(node.material)
-            ? node.material.map(updateMaterial)
-            : updateMaterial(node.material);
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(
+        new URL('../../assets/models/dt-cars-suv-cutout.png', import.meta.url).href,
+        (sourceTexture) => {
+          sourceTexture.colorSpace = THREE.SRGBColorSpace;
+          const spriteMaterial = new THREE.SpriteMaterial({
+            map: sourceTexture,
+            transparent: true,
+            alphaTest: 0.02,
+            depthWrite: false,
+            color: bodyColor
+          });
+          const vehicleSprite = new THREE.Sprite(spriteMaterial);
+          vehicleSprite.position.set(0, scaledSize.y / 2, 0.25);
+          vehicleSprite.scale.set(scaledSize.x, scaledSize.y, 1);
+          carGroup.add(vehicleSprite);
+          bodyMaterials.add(spriteMaterial);
+        },
+        undefined,
+        (error) => {
+          console.error('Nepodarilo sa načítať vizuálnu textúru vozidla.', error);
         }
+      );
 
-        if (wheelNames.includes(node.name)) {
-          node.userData.baseX = node.position.x;
-          node.userData.side = node.position.x >= 0 ? 1 : -1;
-          wheels.push(node);
-        }
-
-        if (node.name === 'Pueratas') doorsNode = node;
-      });
-
-      if (doorsNode) {
-        const doorBounds = new THREE.Box3().setFromObject(doorsNode);
-        const hinge = new THREE.Vector3(
-          doorBounds.max.x,
-          doorBounds.getCenter(new THREE.Vector3()).y,
-          doorBounds.max.z
-        );
-        const doorParent = doorsNode.parent;
-        doorParent.worldToLocal(hinge);
-        doorPivot = new THREE.Group();
-        doorParent.add(doorPivot);
-        doorPivot.position.copy(hinge);
-        doorPivot.attach(doorsNode);
-      }
     },
     undefined,
     (error) => {
-      console.error('Nepodarilo sa načítať 3D model Chevrolet Camaro SS.', error);
+      console.error('Nepodarilo sa načítať 3D model vozidla D&T CARS.', error);
     }
   );
 
-  return { carGroup, state, setBodyColor, updateCarAnimations };
+  return { setBodyColor };
 }

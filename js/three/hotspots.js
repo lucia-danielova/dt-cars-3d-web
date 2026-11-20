@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
 const hotspotConfigs = [
-  { zoneId: 'engine', number: '1', label: 'Motor & Klíma', position: [0, 0.94, 1.42] },
-  { zoneId: 'wheels', number: '2', label: 'Kolesá & Brzdy', position: [1.18, 0.46, 1.36] },
-  { zoneId: 'cabin', number: '3', label: 'Kabína & Ventilácia', position: [0, 1.32, -0.12] },
-  { zoneId: 'exhaust', number: '4', label: 'Zadná náprava & Diely', position: [0, 0.54, -2.12] }
+  { zoneId: 'engine', number: '1', label: 'Motor & Klíma', position: [-0.72, 1.78, 0.3] },
+  { zoneId: 'wheels', number: '2', label: 'Kolesá & Brzdy', position: [0, 1.05, 0.3] },
+  { zoneId: 'cabin', number: '3', label: 'Kabína & Ventilácia', position: [0.72, 2.3, 0.3] },
+  { zoneId: 'exhaust', number: '4', label: 'Zadná náprava & Diely', position: [1.42, 1.5, 0.3] }
 ];
 
 export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) {
@@ -13,7 +13,7 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
   const hotspotGeometry = new THREE.SphereGeometry(0.11, 20, 20);
   const cameraPosition = new THREE.Vector3();
   const cameraDirection = new THREE.Vector3();
-  const carCenter = new THREE.Vector3(0, 0.65, 0);
+  const carCenter = new THREE.Vector3(0, 1.65, 0);
   const worldPosition = new THREE.Vector3();
   const projectedPosition = new THREE.Vector3();
   const toHotspot = new THREE.Vector3();
@@ -21,7 +21,7 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
   hotspotConfigs.forEach((config) => {
     const mesh = new THREE.Mesh(
       hotspotGeometry,
-      new THREE.MeshBasicMaterial({ color: 0xe63946 })
+      new THREE.MeshBasicMaterial({ color: 0x37e4ce })
     );
     mesh.position.set(...config.position);
     mesh.userData.zoneId = config.zoneId;
@@ -29,7 +29,7 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
     const halo = new THREE.Mesh(
       new THREE.SphereGeometry(0.18, 20, 20),
       new THREE.MeshBasicMaterial({
-        color: 0xff4757,
+        color: 0x40f0d7,
         transparent: true,
         opacity: 0.35
       })

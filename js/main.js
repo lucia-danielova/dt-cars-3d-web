@@ -9,7 +9,7 @@ const zonePanel = document.getElementById('zone-panel');
 const zoneFeedback = document.getElementById('zone-feedback');
 const addToCartButton = document.getElementById('add-to-cart-btn');
 const { scene, camera, renderer, focusCamera, resetCamera, updateCamera } = createScene(container);
-const { state: carState, setBodyColor, updateCarAnimations } = buildCarModel(scene);
+const { setBodyColor } = buildCarModel(scene);
 
 let activeZoneId = null;
 let confirmationTimeout = 0;
@@ -99,9 +99,6 @@ function selectZone(zoneId) {
     pin.setAttribute('aria-pressed', String(isActive));
   });
 
-  carState.hoodOpen = zone.action === 'openHood';
-  carState.doorsOpen = zone.action === 'openDoors';
-  carState.wheelsExpanded = zone.action === 'inspectWheels';
   focusCamera(zone.cameraPos, zone.cameraTarget);
 
   document.getElementById('zone-badge').textContent = zone.badge;
@@ -173,18 +170,15 @@ container.addEventListener('click', (event) => {
 });
 
 document.getElementById('toggle-hood').addEventListener('click', () => {
-  carState.hoodOpen = !carState.hoodOpen;
+  selectZone('engine');
 });
 document.getElementById('toggle-doors').addEventListener('click', () => {
-  carState.doorsOpen = !carState.doorsOpen;
+  selectZone('cabin');
 });
 document.getElementById('toggle-wheels').addEventListener('click', () => {
-  carState.wheelsExpanded = !carState.wheelsExpanded;
+  selectZone('wheels');
 });
 document.getElementById('reset-cam').addEventListener('click', () => {
-  carState.hoodOpen = false;
-  carState.doorsOpen = false;
-  carState.wheelsExpanded = false;
   resetCamera();
   closeZonePanel();
 });
@@ -417,6 +411,22 @@ function closeCart() {
 
 document.getElementById('open-cart-btn').addEventListener('click', openCart);
 document.getElementById('close-cart-btn').addEventListener('click', closeCart);
+document.getElementById('start-diagnostics-btn').addEventListener('click', () => {
+  selectZone('engine');
+});
+document.querySelectorAll('[data-showcase-zone]').forEach((button) => {
+  button.addEventListener('click', () => selectZone(button.dataset.showcaseZone));
+});
+document.getElementById('quick-booking-btn').addEventListener('click', () => {
+  const make = document.getElementById('quick-car-make').value.trim();
+  const model = document.getElementById('quick-car-model').value.trim();
+  const service = SERVICES.find((item) => item.id === document.getElementById('quick-service').value);
+  const carDescription = [make, model].filter(Boolean).join(' ');
+
+  if (carDescription) document.getElementById('cust-car').value = carDescription;
+  if (service) addCartEntry(service.zoneId, [service.id]);
+  openCart();
+});
 cartBackdrop.addEventListener('click', (event) => {
   if (event.target === cartBackdrop) closeCart();
 });
@@ -517,7 +527,6 @@ const animationStart = performance.now();
 function animate() {
   requestAnimationFrame(animate);
   const elapsed = (performance.now() - animationStart) / 1000;
-  updateCarAnimations();
   updateCamera();
   animateHotspots(elapsed);
   renderer.render(scene, camera);

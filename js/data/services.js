@@ -71,8 +71,8 @@ export const DIAGNOSTIC_ZONES = {
     label: "Motor, chladenie & klíma",
     badge: "Zóna 1 — Predná časť",
     action: "openHood",
-    cameraPos: [2.4, 1.9, 3.2],
-    cameraTarget: [0, 0.75, 1.2],
+    cameraPos: [-0.55, 2.2, 4.5],
+    cameraTarget: [-0.72, 1.78, 0.1],
     serviceIds: ["autoservis", "plnenie-klimatizacii", "predaj-nahradnych-dielov"],
     symptoms: [
       "Svieti kontrolka motora",
@@ -86,8 +86,8 @@ export const DIAGNOSTIC_ZONES = {
     label: "Kolesá, pneu, disky & brzdy",
     badge: "Zóna 2 — Podvozok & Kolesá",
     action: "inspectWheels",
-    cameraPos: [3.6, 1.3, 1.8],
-    cameraTarget: [0.9, 0.45, 0.4],
+    cameraPos: [0.2, 1.65, 4.1],
+    cameraTarget: [0, 1.05, 0.1],
     serviceIds: ["pneuservis", "uskladnenie-pneumatik", "predaj-pneumatik", "predaj-diskov"],
     symptoms: [
       "Sezónne prezutie a vyváženie",
@@ -101,8 +101,8 @@ export const DIAGNOSTIC_ZONES = {
     label: "Kabína & Ventilácia",
     badge: "Zóna 3 — Kabína vozidla",
     action: "openDoors",
-    cameraPos: [2.7, 1.7, 0.2],
-    cameraTarget: [0, 0.85, 0.0],
+    cameraPos: [0.7, 2.4, 4.1],
+    cameraTarget: [0.72, 2.3, 0.1],
     serviceIds: ["dezinfekcia-ozonom", "plnenie-klimatizacii", "autoservis"],
     symptoms: [
       "Zápach z klimatizácie / ventilácie",
@@ -115,8 +115,8 @@ export const DIAGNOSTIC_ZONES = {
     label: "Zadná náprava & Diely",
     badge: "Zóna 4 — Zadná časť",
     action: "inspectWheels",
-    cameraPos: [-2.6, 1.6, -3.2],
-    cameraTarget: [0, 0.65, -1.3],
+    cameraPos: [1.35, 1.75, 4.1],
+    cameraTarget: [1.42, 1.5, 0.1],
     serviceIds: ["autoservis", "predaj-nahradnych-dielov"],
     symptoms: [
       "Hlučný výfuk alebo klepanie vzadu",
