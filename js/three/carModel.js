@@ -63,6 +63,18 @@ export function buildCarModel(scene) {
           node.castShadow = true;
           node.receiveShadow = true;
 
+          const isProxyMesh = node.name === 'Carroceria';
+          if (isProxyMesh) {
+            const hideProxyMaterial = (material) => {
+              const hiddenMaterial = material.clone();
+              hiddenMaterial.visible = false;
+              return hiddenMaterial;
+            };
+            node.material = Array.isArray(node.material)
+              ? node.material.map(hideProxyMaterial)
+              : hideProxyMaterial(node.material);
+          }
+
           const applyBodyFinish = (material) => {
             if (material.name !== 'Material') return material;
 
@@ -80,9 +92,10 @@ export function buildCarModel(scene) {
             return bodyMaterial;
           };
 
+          const updateMaterial = isProxyMesh ? (material) => material : applyBodyFinish;
           node.material = Array.isArray(node.material)
-            ? node.material.map(applyBodyFinish)
-            : applyBodyFinish(node.material);
+            ? node.material.map(updateMaterial)
+            : updateMaterial(node.material);
         }
 
         if (wheelNames.includes(node.name)) {
