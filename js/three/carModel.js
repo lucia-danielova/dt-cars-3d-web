@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export function buildCarModel(scene) {
   const carGroup = new THREE.Group();
@@ -12,6 +13,7 @@ export function buildCarModel(scene) {
   };
   const bodyMaterials = new Set();
   const wheels = [];
+  let doorPivot = null;
   let bodyColor = '#0b0d12';
 
   function setBodyColor(hexColor) {
@@ -20,6 +22,11 @@ export function buildCarModel(scene) {
   }
 
   function updateCarAnimations() {
+    if (doorPivot) {
+      const targetRotation = state.doorsOpen ? -0.72 : 0;
+      doorPivot.rotation.y += (targetRotation - doorPivot.rotation.y) * 0.1;
+    }
+
     wheels.forEach((wheel) => {
       const offset = state.wheelsExpanded ? wheel.userData.side * 0.45 : 0;
       const targetX = wheel.userData.baseX + offset;
@@ -29,6 +36,10 @@ export function buildCarModel(scene) {
   }
 
   const loader = new GLTFLoader();
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
+  loader.setDRACOLoader(dracoLoader);
+
   loader.load(
     new URL('../../models/Chevrolet_Camaro_SS.glb', import.meta.url).href,
     (gltf) => {
@@ -46,6 +57,7 @@ export function buildCarModel(scene) {
 
       const bodyMaterialCopies = new Map();
       const wheelNames = ['Rueda_Ad_De', 'Rueda_Ad_Iz', 'Rueda_At_De', 'Rueda_At_Iz'];
+      let doorsNode = null;
       model.traverse((node) => {
         if (node.isMesh) {
           node.castShadow = true;
@@ -78,7 +90,24 @@ export function buildCarModel(scene) {
           node.userData.side = node.position.x >= 0 ? 1 : -1;
           wheels.push(node);
         }
+
+        if (node.name === 'Pueratas') doorsNode = node;
       });
+
+      if (doorsNode) {
+        const doorBounds = new THREE.Box3().setFromObject(doorsNode);
+        const hinge = new THREE.Vector3(
+          doorBounds.max.x,
+          doorBounds.getCenter(new THREE.Vector3()).y,
+          doorBounds.max.z
+        );
+        const doorParent = doorsNode.parent;
+        doorParent.worldToLocal(hinge);
+        doorPivot = new THREE.Group();
+        doorParent.add(doorPivot);
+        doorPivot.position.copy(hinge);
+        doorPivot.attach(doorsNode);
+      }
     },
     undefined,
     (error) => {
