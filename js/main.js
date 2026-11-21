@@ -15,7 +15,18 @@ const tireSeason = document.getElementById('tire-season');
 const tireSize = document.getElementById('tire-size');
 const customTireSize = document.getElementById('tire-size-custom');
 const { scene, camera, renderer, focusCamera, updateCamera } = createScene(container);
-const carModel = buildCarModel(scene);
+const loader = document.getElementById('model-loader');
+const loaderBar = document.getElementById('model-loader-bar');
+const carModel = buildCarModel(scene, {
+  onProgress: (ratio) => {
+    if (loaderBar) loaderBar.style.width = `${Math.round(ratio * 100)}%`;
+  },
+  onDone: () => {
+    if (!loader) return;
+    loader.classList.add('is-done');
+    loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+  }
+});
 
 let activeZoneId = null;
 let hideHotspotLabels = () => {};

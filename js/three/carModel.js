@@ -15,7 +15,7 @@ function trackPart(object, shiftAxis = new THREE.Vector3(1, 0, 0)) {
   };
 }
 
-export function buildCarModel(scene) {
+export function buildCarModel(scene, { onProgress = () => {}, onDone = () => {} } = {}) {
   const carRoot = new THREE.Group();
   scene.add(carRoot);
 
@@ -46,6 +46,7 @@ export function buildCarModel(scene) {
 
   const fallbackGroup = createProceduralCoupe(bodyMaterial, parts);
   carRoot.add(fallbackGroup);
+  fallbackGroup.visible = false;
 
   const dracoLoader = new DRACOLoader();
   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
@@ -130,11 +131,16 @@ export function buildCarModel(scene) {
       carRoot.remove(fallbackGroup);
       carRoot.add(alignedModel);
       dracoLoader.dispose();
+      onDone();
     },
-    undefined,
+    (event) => {
+      if (event.lengthComputable && event.total > 0) onProgress(event.loaded / event.total);
+    },
     (error) => {
       console.error('Nepodarilo sa načítať Draco model vozidla D&T CARS; zostáva procedurálny fallback.', error);
+      fallbackGroup.visible = true;
       dracoLoader.dispose();
+      onDone();
     }
   );
 
