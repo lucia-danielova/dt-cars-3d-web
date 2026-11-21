@@ -70,9 +70,6 @@ export const DIAGNOSTIC_ZONES = {
     id: "engine",
     label: "Motor, chladenie & klíma",
     badge: "Zóna 1 — Predná časť",
-    action: "openHood",
-    cameraPos: [-0.55, 2.2, 4.5],
-    cameraTarget: [-0.72, 1.78, 0.1],
     serviceIds: ["autoservis", "plnenie-klimatizacii", "predaj-nahradnych-dielov"],
     symptoms: [
       "Svieti kontrolka motora",
@@ -85,9 +82,6 @@ export const DIAGNOSTIC_ZONES = {
     id: "wheels",
     label: "Kolesá, Pneu & Brzdy",
     badge: "Zóna 2 — Podvozok & Kolesá",
-    action: "inspectWheels",
-    cameraPos: [0.2, 1.65, 4.1],
-    cameraTarget: [0, 1.05, 0.1],
     serviceIds: ["pneuservis", "uskladnenie-pneumatik", "predaj-pneumatik", "predaj-diskov"],
     symptoms: [
       "Prezutie + vyváženie",
@@ -101,9 +95,6 @@ export const DIAGNOSTIC_ZONES = {
     id: "cabin",
     label: "Kabína & Ventilácia",
     badge: "Zóna 3 — Kabína vozidla",
-    action: "openDoors",
-    cameraPos: [0.7, 2.4, 4.1],
-    cameraTarget: [0.72, 2.3, 0.1],
     serviceIds: ["dezinfekcia-ozonom", "plnenie-klimatizacii", "autoservis"],
     symptoms: [
       "Klíma nechladí",
@@ -116,9 +107,6 @@ export const DIAGNOSTIC_ZONES = {
     id: "exhaust",
     label: "Zadná náprava & Diely",
     badge: "Zóna 4 — Zadná časť",
-    action: "inspectWheels",
-    cameraPos: [1.35, 1.75, 4.1],
-    cameraTarget: [1.42, 1.5, 0.1],
     serviceIds: ["autoservis", "predaj-nahradnych-dielov"],
     symptoms: [
       "Búchanie od nápravy",
