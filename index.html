@@ -3,35 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D&T CARS s.r.o. | 3D Interaktívny Autoservis & Pneuservis Bratislava</title>
+  <title>D&T CARS s.r.o. | Autoservis & Pneuservis Bratislava</title>
   <meta name="description" content="Interaktívny autoservis a pneuservis D&T CARS v Bratislave-Petržalke. Vyberte si službu, opíšte problém a pošlite nezáväzný dopyt." />
-  <meta name="theme-color" content="#f8fafc" />
+  <meta name="theme-color" content="#09121b" />
   <meta name="web3forms-access-key" content="" />
-  <link rel="preconnect" href="https://unpkg.com" crossorigin />
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-  <link rel="preload" href="assets/models/car-draco.glb" as="fetch" type="model/gltf-binary" crossorigin fetchpriority="high" />
-  <link rel="preload" href="https://www.gstatic.com/draco/versioned/decoders/1.5.7/draco_wasm_wrapper.js" as="fetch" crossorigin />
-  <link rel="preload" href="https://www.gstatic.com/draco/versioned/decoders/1.5.7/draco_decoder.wasm" as="fetch" type="application/wasm" crossorigin />
+  <link rel="preload" href="assets/car-background.png" as="image" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/hud-overlay.css" />
-  <!-- Import map pre Three.js (bez nutnosti inštalovať Node.js) -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
 </head>
 <body>
-  <div id="canvas-container" aria-label="Interaktívny 3D model vozidla"></div>
-  <div id="model-loader" class="model-loader" role="status" aria-live="polite">
-    <span>Načítavam 3D model…</span>
-    <div class="model-loader-track"><div id="model-loader-bar" class="model-loader-bar"></div></div>
-  </div>
-  <svg id="hotspot-lines" aria-hidden="true"></svg>
-  <div id="hotspots-overlay" role="group" aria-label="Diagnostické zóny vozidla"></div>
+  <div id="car-background" aria-hidden="true"></div>
+  <nav class="zone-picker" aria-label="Diagnostické zóny vozidla">
+    <button type="button" class="zone-button" data-zone="engine" aria-pressed="false"><span>01</span> Motor &amp; klíma</button>
+    <button type="button" class="zone-button" data-zone="wheels" aria-pressed="false"><span>02</span> Kolesá &amp; brzdy</button>
+    <button type="button" class="zone-button" data-zone="cabin" aria-pressed="false"><span>03</span> Kabína &amp; ventilácia</button>
+    <button type="button" class="zone-button" data-zone="exhaust" aria-pressed="false"><span>04</span> Zadná náprava &amp; diely</button>
+  </nav>
 
   <!-- Horná navigačná lišta -->
   <header class="topbar">

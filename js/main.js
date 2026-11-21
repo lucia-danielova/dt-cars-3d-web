@@ -1,10 +1,6 @@
 import { COMPANY_INFO, SERVICES, DIAGNOSTIC_ZONES } from './data/services.js';
-import { createScene } from './three/scene.js';
-import { buildCarModel } from './three/carModel.js';
-import { setupHotspots } from './three/hotspots.js';
 
-const container = document.getElementById('canvas-container');
-const hotspotsOverlay = document.getElementById('hotspots-overlay');
+const background = document.getElementById('car-background');
 const zonePanel = document.getElementById('zone-panel');
 const zoneFeedback = document.getElementById('zone-feedback');
 const addToCartButton = document.getElementById('add-to-cart-btn');
@@ -14,22 +10,7 @@ const tireOptions = document.getElementById('tire-options');
 const tireSeason = document.getElementById('tire-season');
 const tireSize = document.getElementById('tire-size');
 const customTireSize = document.getElementById('tire-size-custom');
-const { scene, camera, renderer, focusCamera, updateCamera } = createScene(container);
-const loader = document.getElementById('model-loader');
-const loaderBar = document.getElementById('model-loader-bar');
-const carModel = buildCarModel(scene, {
-  onProgress: (ratio) => {
-    if (loaderBar) loaderBar.style.width = `${Math.round(ratio * 100)}%`;
-  },
-  onDone: () => {
-    if (!loader) return;
-    loader.classList.add('is-done');
-    loader.addEventListener('transitionend', () => loader.remove(), { once: true });
-  }
-});
-
 let activeZoneId = null;
-let hideHotspotLabels = () => {};
 let confirmationTimeout = 0;
 let toastTimeout = 0;
 let drawerCloseTimeout = 0;
@@ -139,12 +120,8 @@ function selectZone(zoneId) {
   const zone = DIAGNOSTIC_ZONES[zoneId];
   if (!zone) return;
 
-  hideHotspotLabels();
   activeZoneId = zoneId;
   window.clearTimeout(confirmationTimeout);
-  carModel.setHoodOpen(zoneId === 'engine');
-  carModel.setDoorsOpen(zoneId === 'cabin');
-  carModel.setWheelsExpanded(zoneId === 'wheels');
   tireOptions.classList.toggle('hidden', zoneId !== 'wheels');
   if (zoneId !== 'wheels') {
     tireSeason.value = '';
@@ -152,13 +129,11 @@ function selectZone(zoneId) {
     customTireSize.value = '';
     customTireSize.classList.add('hidden');
   }
-  document.querySelectorAll('.car-pin').forEach((pin) => {
+  document.querySelectorAll('.zone-button').forEach((pin) => {
     const isActive = pin.dataset.zone === zoneId;
     pin.classList.toggle('is-active', isActive);
     pin.setAttribute('aria-pressed', String(isActive));
   });
-  focusCamera(zone.cameraPos, zone.cameraTarget);
-
   document.getElementById('zone-badge').textContent = zone.badge;
   document.getElementById('zone-title').textContent = zone.label;
   document.getElementById('problem-note').value = '';
@@ -207,24 +182,16 @@ function selectZone(zoneId) {
 function closeZonePanel() {
   zonePanel.classList.add('hidden');
   tireOptions.classList.add('hidden');
-  carModel.setHoodOpen(false);
-  carModel.setDoorsOpen(false);
-  carModel.setWheelsExpanded(false);
-  document.querySelectorAll('.car-pin').forEach((pin) => {
+  document.querySelectorAll('.zone-button').forEach((pin) => {
     pin.classList.remove('is-active');
     pin.setAttribute('aria-pressed', 'false');
   });
   activeZoneId = null;
 }
 
-const { animateHotspots, hidePinLabels } = setupHotspots(
-  scene,
-  camera,
-  renderer.domElement,
-  hotspotsOverlay,
-  selectZone
-);
-hideHotspotLabels = hidePinLabels;
+document.querySelectorAll('.zone-button').forEach((button) => {
+  button.addEventListener('click', () => selectZone(button.dataset.zone));
+});
 
 function openGlassDrawer({ scrollToCart = false } = {}) {
   window.clearTimeout(drawerCloseTimeout);
@@ -255,9 +222,7 @@ function closeGlassDrawer() {
 }
 
 document.getElementById('close-glass-drawer').addEventListener('click', closeGlassDrawer);
-container.addEventListener('click', (event) => {
-  if (event.target === renderer.domElement) closeGlassDrawer();
-});
+background.addEventListener('click', closeGlassDrawer);
 
 tireSize.addEventListener('change', () => {
   const isCustomSize = tireSize.value === 'other';
@@ -276,7 +241,7 @@ function updateCartUI() {
   if (serviceCart.length === 0) {
     const emptyMessage = document.createElement('p');
     emptyMessage.className = 'empty-cart';
-    emptyMessage.textContent = 'Servisný plán je prázdny. Vyberte zónu na aute alebo pridajte službu z katalógu.';
+    emptyMessage.textContent = 'Servisný plán je prázdny. Vyberte servisnú zónu alebo pridajte službu z katalógu.';
     itemsContainer.appendChild(emptyMessage);
     return;
   }
@@ -627,15 +592,3 @@ document.getElementById('booking-form').addEventListener('submit', async (event)
     openMailFallback(body, subject);
   }
 });
-
-const animationStart = performance.now();
-function animate() {
-  requestAnimationFrame(animate);
-  const elapsed = (performance.now() - animationStart) / 1000;
-  updateCamera();
-  carModel.updateCarAnimations();
-  animateHotspots(elapsed);
-  renderer.render(scene, camera);
-}
-
-animate();
