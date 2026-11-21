@@ -89,6 +89,41 @@ textarea:focus-visible {
   touch-action: none;
 }
 
+.model-loader {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #475569;
+  font-size: 0.9rem;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.model-loader.is-done {
+  opacity: 0;
+}
+
+.model-loader-track {
+  width: 180px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(100, 116, 139, 0.25);
+  overflow: hidden;
+}
+
+.model-loader-bar {
+  width: 8%;
+  height: 100%;
+  background: #4ade80;
+  transition: width 0.2s ease;
+}
+
 #canvas-container canvas {
   display: block;
 }
