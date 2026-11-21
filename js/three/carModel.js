@@ -27,6 +27,7 @@ export function buildCarModel(scene) {
     clearcoatRoughness: 0.12
   });
   const bodyMaterials = new Set([bodyMaterial]);
+  let selectedBodyColor = null;
   const parts = {
     hood: null,
     leftDoor: null,
@@ -77,7 +78,7 @@ export function buildCarModel(scene) {
           materials.forEach((material) => {
             if (!material || !/^m4car_(body|hood|bodykit)/i.test(material.name)) return;
             bodyMaterials.add(material);
-            material.color.set(DEFAULT_BODY_COLOR);
+            if (selectedBodyColor !== null) material.color.set(selectedBodyColor);
           });
         }
 
@@ -138,6 +139,7 @@ export function buildCarModel(scene) {
   );
 
   function setBodyColor(hexColor) {
+    selectedBodyColor = hexColor;
     bodyMaterials.forEach((material) => material.color.set(hexColor));
   }
 
