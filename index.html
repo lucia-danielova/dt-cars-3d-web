@@ -7,6 +7,7 @@
   <meta name="description" content="Interaktívny autoservis a pneuservis D&T CARS v Bratislave-Petržalke. Vyberte si službu, opíšte problém a pošlite nezáväzný dopyt." />
   <meta name="theme-color" content="#f8fafc" />
   <meta name="web3forms-access-key" content="" />
+  <link rel="preload" href="assets/models/CAR.glb" as="fetch" type="model/gltf-binary" crossorigin fetchpriority="high" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/hud-overlay.css" />
   <!-- Import map pre Three.js (bez nutnosti inštalovať Node.js) -->
@@ -46,22 +47,6 @@
       </button>
     </nav>
   </header>
-
-  <div class="floating-dock" aria-label="Ovládanie 3D modelu">
-    <button class="btn-mini" id="toggle-hood" data-dock-zone="engine">Kapota</button>
-    <button class="btn-mini" id="toggle-doors" data-dock-zone="cabin">Dvere</button>
-    <button class="btn-mini" id="toggle-wheels" data-dock-zone="wheels">Kolesá</button>
-    <button class="btn-mini" id="reset-cam">Reset</button>
-    <span class="dock-divider" aria-hidden="true"></span>
-    <span class="dock-label">Lak:</span>
-    <div class="color-swatches" role="group" aria-label="Farba laku">
-      <button class="swatch" data-color="#0b0d12" aria-label="Čierna metalíza" title="Čierna metalíza" aria-pressed="false"></button>
-      <button class="swatch" data-color="#8f1025" aria-label="Karmínová červená" title="Karmínová červená" aria-pressed="false"></button>
-      <button class="swatch" data-color="#123c8c" aria-label="Kráľovská modrá" title="Kráľovská modrá" aria-pressed="false"></button>
-      <button class="swatch is-selected" data-color="#c5cbd2" aria-label="Kvapalinová strieborná" title="Kvapalinová strieborná" aria-pressed="true"></button>
-      <button class="swatch" data-color="#075c46" aria-label="Smaragdová" title="Smaragdová" aria-pressed="false"></button>
-    </div>
-  </div>
 
   <aside class="glass-drawer hidden" id="glass-drawer" role="dialog" aria-modal="false" aria-labelledby="quick-booking-title" aria-hidden="true">
     <header class="glass-drawer-header">
