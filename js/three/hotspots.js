@@ -10,13 +10,30 @@ const hotspotConfigs = [
 export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) {
   const hotspotMeshes = [];
   const pins = [];
-  const hotspotGeometry = new THREE.SphereGeometry(0.11, 20, 20);
+  const hotspotGeometry = new THREE.SphereGeometry(0.055, 20, 20);
   const cameraPosition = new THREE.Vector3();
   const cameraDirection = new THREE.Vector3();
   const carCenter = new THREE.Vector3(0, 1.65, 0);
   const worldPosition = new THREE.Vector3();
   const projectedPosition = new THREE.Vector3();
   const toHotspot = new THREE.Vector3();
+  let activePin = null;
+  let tooltipTimeout = 0;
+  let pointerStart = null;
+
+  function hidePinLabel(pin = activePin) {
+    window.clearTimeout(tooltipTimeout);
+    if (!pin) return;
+    pin.classList.remove('is-label-visible');
+    if (activePin === pin) activePin = null;
+  }
+
+  function showPinLabel(pin) {
+    hidePinLabel();
+    activePin = pin;
+    pin.classList.add('is-label-visible');
+    tooltipTimeout = window.setTimeout(() => hidePinLabel(pin), 2800);
+  }
 
   hotspotConfigs.forEach((config) => {
     const mesh = new THREE.Mesh(
@@ -27,11 +44,11 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
     mesh.userData.zoneId = config.zoneId;
 
     const halo = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 20, 20),
+      new THREE.SphereGeometry(0.095, 20, 20),
       new THREE.MeshBasicMaterial({
-        color: 0x40f0d7,
+        color: 0x22b8a5,
         transparent: true,
-        opacity: 0.35
+        opacity: 0.24
       })
     );
     mesh.add(halo);
@@ -54,7 +71,11 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
     label.className = 'pin-label';
     label.textContent = `${config.number} • ${config.label}`;
     pin.append(dot, label);
-    pin.addEventListener('click', () => onSelectZone(config.zoneId));
+    pin.addEventListener('click', (event) => {
+      event.stopPropagation();
+      onSelectZone(config.zoneId);
+      showPinLabel(pin);
+    });
     overlay.appendChild(pin);
     pins.push(pin);
   });
@@ -76,8 +97,22 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
   }
 
   domElement.addEventListener('pointermove', (event) => {
+    if (pointerStart && Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 5) {
+      hidePinLabel();
+      pointerStart = null;
+    }
     const zoneId = getHitHotspot(event);
     domElement.style.cursor = zoneId ? 'pointer' : 'grab';
+  });
+
+  domElement.addEventListener('pointerdown', (event) => {
+    pointerStart = { x: event.clientX, y: event.clientY };
+  });
+  domElement.addEventListener('pointerup', () => {
+    pointerStart = null;
+  });
+  domElement.addEventListener('pointercancel', () => {
+    pointerStart = null;
   });
 
   domElement.addEventListener('click', (event) => {
@@ -85,6 +120,14 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
     if (!zoneId) return;
     event.stopPropagation();
     onSelectZone(zoneId);
+    showPinLabel(pins.find((pin) => pin.dataset.zone === zoneId));
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('.car-pin')) return;
+    if (domElement.contains(target) && getHitHotspot(event)) return;
+    hidePinLabel();
   });
 
   function animateHotspots(time) {
@@ -116,5 +159,5 @@ export function setupHotspots(scene, camera, domElement, overlay, onSelectZone) 
     });
   }
 
-  return { animateHotspots };
+  return { animateHotspots, hidePinLabels: () => hidePinLabel() };
 }

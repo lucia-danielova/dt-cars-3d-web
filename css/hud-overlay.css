@@ -731,3 +731,372 @@ body.zone-open .quick-booking {
     display: none;
   }
 }
+
+:root {
+  color-scheme: light;
+  --showroom-ink: #17212b;
+  --showroom-muted: #5b6876;
+  --showroom-line: rgba(36, 54, 68, 0.12);
+  --showroom-glass: rgba(255, 255, 255, 0.88);
+}
+
+body {
+  color: #17212b;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+body::before {
+  background: none;
+}
+
+.topbar {
+  border-color: rgba(49, 66, 81, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 36px rgba(31, 45, 59, 0.09);
+}
+
+.brand-badge {
+  border-color: rgba(22, 101, 90, 0.2);
+  background: linear-gradient(145deg, #ffffff, #eaf3f2);
+  color: #126d60;
+  box-shadow: 0 6px 18px rgba(31, 45, 59, 0.1);
+}
+
+.brand h1,
+.top-actions .btn {
+  color: #17212b;
+}
+
+.brand h1 span,
+.brand p {
+  color: #5b6876;
+}
+
+.top-actions .btn-ghost:hover {
+  border-color: rgba(18, 109, 96, 0.2);
+  background: rgba(18, 109, 96, 0.06);
+}
+
+.open-status {
+  border-color: rgba(22, 101, 90, 0.16);
+  background: rgba(22, 163, 126, 0.08);
+  color: #126d60;
+}
+
+.hero-copy {
+  color: #17212b;
+}
+
+.hero-eyebrow,
+.card-eyebrow {
+  color: #167968;
+}
+
+.hero-eyebrow > span {
+  background: #20a98d;
+  box-shadow: 0 0 10px rgba(32, 169, 141, 0.35);
+}
+
+.hero-copy h2 {
+  border-left-color: #198e7d;
+  color: #17212b;
+  text-shadow: none;
+}
+
+.hero-copy h2 span {
+  color: #506273;
+}
+
+.hero-copy > p {
+  color: #455464;
+}
+
+.hero-actions .btn-ghost {
+  border-color: rgba(36, 54, 68, 0.16);
+  background: rgba(255, 255, 255, 0.86);
+  color: #17212b;
+}
+
+.hero-note {
+  border-color: rgba(36, 54, 68, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  color: #455464;
+  box-shadow: 0 8px 24px rgba(31, 45, 59, 0.07);
+}
+
+.hero-note-icon {
+  background: #e4f2ef;
+  color: #126d60;
+}
+
+.quick-booking {
+  border-color: rgba(49, 66, 81, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 48px rgba(31, 45, 59, 0.12);
+}
+
+.booking-card-heading h2 {
+  color: #17212b;
+}
+
+.booking-steps {
+  color: #657483;
+}
+
+.booking-steps li > span {
+  border-color: rgba(36, 54, 68, 0.15);
+  background: #f5f8fa;
+  color: #455464;
+}
+
+.booking-steps .is-current {
+  color: #87530c;
+}
+
+.quick-field {
+  color: #455464;
+}
+
+.quick-field select,
+.quick-field input {
+  border-color: rgba(36, 54, 68, 0.16);
+  background-color: #ffffff;
+  color: #17212b;
+}
+
+.quick-field select option {
+  background: #ffffff;
+  color: #17212b;
+}
+
+.quick-field input::placeholder {
+  color: #7a8794;
+}
+
+.estimate-note {
+  border-top-color: rgba(36, 54, 68, 0.1);
+  color: #657483;
+}
+
+.estimate-note strong {
+  color: #17212b;
+}
+
+.booking-footnote {
+  color: #657483;
+}
+
+.showcase-card {
+  border-color: rgba(49, 66, 81, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 28px rgba(31, 45, 59, 0.1);
+  color: #17212b;
+}
+
+.showcase-card:hover {
+  border-color: rgba(22, 137, 119, 0.3);
+  background: #ffffff;
+}
+
+.showcase-icon {
+  border-color: rgba(22, 137, 119, 0.18);
+  background: rgba(22, 137, 119, 0.08);
+  color: #167968;
+}
+
+.showcase-copy small {
+  color: #657483;
+}
+
+.showcase-arrow {
+  color: #167968;
+}
+
+.bottom-bar {
+  border-top-color: rgba(49, 66, 81, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 -8px 28px rgba(31, 45, 59, 0.06);
+  color: #455464;
+}
+
+.bottom-bar small {
+  color: #657483;
+}
+
+.bottom-bar a {
+  color: #17212b;
+}
+
+.bottom-bar a:hover,
+.contact-details a:hover {
+  color: #167968;
+}
+
+.footer-open {
+  border-color: rgba(22, 101, 90, 0.15);
+  background: rgba(22, 163, 126, 0.07);
+  color: #126d60;
+}
+
+.floating-dock {
+  border-color: rgba(49, 66, 81, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 36px rgba(31, 45, 59, 0.13);
+}
+
+.glass-popover {
+  border-color: rgba(36, 54, 68, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 55px rgba(31, 45, 59, 0.18);
+  color: #17212b;
+}
+
+.glass-popover h2 {
+  color: #17212b;
+}
+
+.close-btn {
+  border-color: rgba(36, 54, 68, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+  color: #344454;
+}
+
+.form-group > label {
+  color: #526170;
+}
+
+.zone-tag {
+  border-color: rgba(22, 137, 119, 0.2);
+  background: rgba(22, 137, 119, 0.08);
+  color: #126d60;
+}
+
+.checkbox-item {
+  border-color: rgba(36, 54, 68, 0.12);
+  background: rgba(248, 250, 252, 0.82);
+  color: #263746;
+}
+
+.chip {
+  border-color: rgba(36, 54, 68, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+  color: #344454;
+}
+
+.zone-feedback {
+  color: #167968;
+}
+
+.zone-feedback.is-error {
+  color: #b42332;
+}
+
+.btn-mini {
+  border-color: rgba(36, 54, 68, 0.14);
+  background: rgba(248, 250, 252, 0.9);
+  color: #263746;
+}
+
+.btn-mini:hover {
+  border-color: rgba(22, 137, 119, 0.3);
+  background: rgba(22, 137, 119, 0.07);
+}
+
+.dock-divider {
+  background: rgba(36, 54, 68, 0.16);
+}
+
+.swatch {
+  border-color: rgba(36, 54, 68, 0.25);
+}
+
+.swatch:hover {
+  border-color: #17212b;
+}
+
+.car-pin {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  place-items: center;
+  gap: 0;
+  padding: 0;
+  overflow: visible;
+  border: 2px solid rgba(15, 118, 110, 0.72);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 5px rgba(15, 23, 42, 0.2);
+  color: #17212b;
+  animation: hotspot-ring 2s ease-out infinite;
+}
+
+.car-pin:hover,
+.car-pin.is-active {
+  border-color: #0f766e;
+  background: #ffffff;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.22);
+}
+
+.car-pin:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 3px;
+}
+
+.pin-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f766e;
+  box-shadow: none;
+  animation: none;
+}
+
+.pin-label {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  display: block;
+  width: max-content;
+  max-width: min(230px, calc(100vw - 48px));
+  padding: 7px 10px;
+  overflow: visible;
+  border: 1px solid rgba(36, 54, 68, 0.14);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 7px 20px rgba(31, 45, 59, 0.12);
+  color: #263746;
+  font-size: 0.68rem;
+  font-weight: 680;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  text-overflow: clip;
+  white-space: normal;
+  visibility: hidden;
+  transform: translateY(-50%) translateX(-4px);
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.car-pin.is-label-visible .pin-label {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%);
+}
+
+@keyframes hotspot-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.12); }
+  50% { box-shadow: 0 0 0 5px rgba(15, 118, 110, 0); }
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .floating-dock {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
