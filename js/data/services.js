@@ -83,15 +83,16 @@ export const DIAGNOSTIC_ZONES = {
   },
   wheels: {
     id: "wheels",
-    label: "Kolesá, pneu, disky & brzdy",
+    label: "Kolesá, Pneu & Brzdy",
     badge: "Zóna 2 — Podvozok & Kolesá",
     action: "inspectWheels",
     cameraPos: [0.2, 1.65, 4.1],
     cameraTarget: [0, 1.05, 0.1],
     serviceIds: ["pneuservis", "uskladnenie-pneumatik", "predaj-pneumatik", "predaj-diskov"],
     symptoms: [
-      "Sezónne prezutie a vyváženie",
+      "Prezutie + vyváženie",
       "Defekt alebo únik tlaku v pneumatike",
+      "Búchanie od nápravy",
       "Pískanie alebo vibrácie pri brzdení",
       "Dopyt na nové pneumatiky / disky"
     ]
@@ -105,7 +106,8 @@ export const DIAGNOSTIC_ZONES = {
     cameraTarget: [0.72, 2.3, 0.1],
     serviceIds: ["dezinfekcia-ozonom", "plnenie-klimatizacii", "autoservis"],
     symptoms: [
-      "Zápach z klimatizácie / ventilácie",
+      "Klíma nechladí",
+      "Zápach z ventilácie",
       "Dezinfekcia interiéru ozónom",
       "Zahmlievanie okien / výmena kabínového filtra"
     ]
@@ -119,6 +121,7 @@ export const DIAGNOSTIC_ZONES = {
     cameraTarget: [1.42, 1.5, 0.1],
     serviceIds: ["autoservis", "predaj-nahradnych-dielov"],
     symptoms: [
+      "Búchanie od nápravy",
       "Hlučný výfuk alebo klepanie vzadu",
       "Búchanie zadnej nápravy na nerovnostiach",
       "Objednávka konkrétneho náhradného dielu"
