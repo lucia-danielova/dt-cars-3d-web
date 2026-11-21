@@ -47,7 +47,7 @@ export function createScene(container) {
   const environment = pmremGenerator.fromScene(envScene, 0.04).texture;
   pmremGenerator.dispose();
   scene.environment = environment;
-  scene.environmentIntensity = 1.7;
+  scene.environmentIntensity = 2.35;
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -127,8 +127,8 @@ export function createScene(container) {
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xcbd5e1, 0.85);
   scene.add(hemiLight);
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
-  keyLight.position.set(4.5, 8, 5.5);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 4.2);
+  keyLight.position.set(2.5, 9, 7.5);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(2048, 2048);
   keyLight.shadow.bias = -0.0004;
@@ -138,9 +138,13 @@ export function createScene(container) {
   keyLight.shadow.camera.bottom = -5;
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x9caec6, 1.4);
-  rimLight.position.set(-5.5, 3.8, -4.5);
-  scene.add(rimLight);
+  const coolRimLight = new THREE.DirectionalLight(0x38bdf8, 2.2);
+  coolRimLight.position.set(-6, 4, 0);
+  scene.add(coolRimLight);
+
+  const warmRimLight = new THREE.DirectionalLight(0xf59e0b, 1.8);
+  warmRimLight.position.set(6, 3.5, -2);
+  scene.add(warmRimLight);
 
   [-1, 1].forEach((side) => {
     const fill = new THREE.PointLight(0xffffff, 2.8, 14, 2);

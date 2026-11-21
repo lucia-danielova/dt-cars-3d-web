@@ -27,8 +27,8 @@ export function buildCarModel(scene) {
         { index: 2, size: size.z }
       ].sort((a, b) => b.size - a.size);
       const localToWorldAxes = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
-      localToWorldAxes[axes[0].index].set(1, 0, 0);
-      localToWorldAxes[axes[1].index].set(0, 0, 1);
+      localToWorldAxes[axes[0].index].set(0, 0, 1);
+      localToWorldAxes[axes[1].index].set(1, 0, 0);
       localToWorldAxes[axes[2].index].set(0, 1, 0);
       const alignmentMatrix = new THREE.Matrix4().makeBasis(...localToWorldAxes);
       if (alignmentMatrix.determinant() < 0) {

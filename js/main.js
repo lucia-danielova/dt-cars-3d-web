@@ -8,6 +8,12 @@ const hotspotsOverlay = document.getElementById('hotspots-overlay');
 const zonePanel = document.getElementById('zone-panel');
 const zoneFeedback = document.getElementById('zone-feedback');
 const addToCartButton = document.getElementById('add-to-cart-btn');
+const glassDrawer = document.getElementById('glass-drawer');
+const cartContent = document.getElementById('cart-content');
+const tireOptions = document.getElementById('tire-options');
+const tireSeason = document.getElementById('tire-season');
+const tireSize = document.getElementById('tire-size');
+const customTireSize = document.getElementById('tire-size-custom');
 const { scene, camera, renderer, focusCamera, resetCamera, updateCamera } = createScene(container);
 const { setBodyColor } = buildCarModel(scene);
 
@@ -15,10 +21,36 @@ let activeZoneId = null;
 let hideHotspotLabels = () => {};
 let confirmationTimeout = 0;
 let toastTimeout = 0;
-let cartCloseTimeout = 0;
-const cartBackdrop = document.getElementById('cart-backdrop');
+let drawerCloseTimeout = 0;
+let drawerOpener = null;
 const toastElement = document.getElementById('toast');
-const CART_STORAGE_KEY = 'dtcars-service-cart-v1';
+const CART_STORAGE_KEY = 'dtcars_service_list';
+const LEGACY_CART_STORAGE_KEY = 'dtcars-service-cart-v1';
+const WEB3FORMS_ACCESS_KEY =
+  document.querySelector('meta[name="web3forms-access-key"]')?.content.trim() || '';
+
+function updateOpeningStatus() {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Bratislava',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  const currentMinutes = Number(values.hour) * 60 + Number(values.minute);
+  const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(values.weekday);
+  const isOpen = isWeekday && currentMinutes >= 8 * 60 && currentMinutes < 17 * 60;
+  const status = document.getElementById('open-status');
+
+  document.getElementById('open-status-label').textContent = isOpen ? 'OTVORENÉ' : 'ZATVORENÉ';
+  status.classList.toggle('is-open', isOpen);
+  status.classList.toggle('is-closed', !isOpen);
+}
+
+updateOpeningStatus();
+window.setInterval(updateOpeningStatus, 60_000);
+document.getElementById('service-count').textContent = `(${SERVICES.length})`;
 
 function showToast(message, tone = 'success') {
   window.clearTimeout(toastTimeout);
@@ -39,7 +71,11 @@ function createCartId() {
 
 function loadCart() {
   try {
-    const savedItems = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    const savedItems = JSON.parse(
+      window.localStorage.getItem(CART_STORAGE_KEY) ||
+      window.localStorage.getItem(LEGACY_CART_STORAGE_KEY) ||
+      '[]'
+    );
     if (!Array.isArray(savedItems)) {
       showToast('Uložený servisný plán má neplatný formát.', 'error');
       return [];
@@ -76,6 +112,17 @@ function saveCart() {
 }
 
 const serviceCart = loadCart();
+try {
+  if (
+    window.localStorage.getItem(CART_STORAGE_KEY) === null &&
+    window.localStorage.getItem(LEGACY_CART_STORAGE_KEY) !== null
+  ) {
+    if (saveCart()) window.localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+    else showToast('Zoznam sa nepodarilo previesť do nového úložiska.', 'error');
+  }
+} catch (error) {
+  showToast('Servisný zoznam sa nepodarilo uložiť v tomto prehliadači.', 'error');
+}
 
 document.querySelectorAll('.swatch').forEach((button) => {
   button.addEventListener('click', () => {
@@ -95,10 +142,21 @@ function selectZone(zoneId) {
   hideHotspotLabels();
   activeZoneId = zoneId;
   window.clearTimeout(confirmationTimeout);
+  tireOptions.classList.toggle('hidden', zoneId !== 'wheels');
+  if (zoneId !== 'wheels') {
+    tireSeason.value = '';
+    tireSize.value = '';
+    customTireSize.value = '';
+    customTireSize.classList.add('hidden');
+  }
   document.querySelectorAll('.car-pin').forEach((pin) => {
     const isActive = pin.dataset.zone === zoneId;
     pin.classList.toggle('is-active', isActive);
     pin.setAttribute('aria-pressed', String(isActive));
+  });
+  document.querySelectorAll('[data-dock-zone]').forEach((button) => {
+    const dockZoneId = zone.action === 'inspectWheels' ? 'wheels' : zoneId;
+    button.classList.toggle('is-active', button.dataset.dockZone === dockZoneId);
   });
 
   focusCamera(zone.cameraPos, zone.cameraTarget);
@@ -145,15 +203,18 @@ function selectZone(zoneId) {
   });
 
   zonePanel.classList.remove('hidden');
-  document.body.classList.add('zone-open');
+  openGlassDrawer();
 }
 
 function closeZonePanel() {
   zonePanel.classList.add('hidden');
-  document.body.classList.remove('zone-open');
+  tireOptions.classList.add('hidden');
   document.querySelectorAll('.car-pin').forEach((pin) => {
     pin.classList.remove('is-active');
     pin.setAttribute('aria-pressed', 'false');
+  });
+  document.querySelectorAll('[data-dock-zone]').forEach((button) => {
+    button.classList.remove('is-active');
   });
   activeZoneId = null;
 }
@@ -167,9 +228,37 @@ const { animateHotspots, hidePinLabels } = setupHotspots(
 );
 hideHotspotLabels = hidePinLabels;
 
-document.getElementById('close-zone-panel').addEventListener('click', closeZonePanel);
+function openGlassDrawer({ scrollToCart = false } = {}) {
+  window.clearTimeout(drawerCloseTimeout);
+  drawerOpener = document.activeElement;
+  glassDrawer.classList.remove('hidden');
+  glassDrawer.setAttribute('aria-hidden', 'false');
+  window.requestAnimationFrame(() => {
+    glassDrawer.classList.add('is-open');
+    if (scrollToCart) cartContent.scrollIntoView({ block: 'start' });
+    document.getElementById('close-glass-drawer').focus();
+  });
+}
+
+function closeGlassDrawer() {
+  if (glassDrawer.classList.contains('hidden')) {
+    closeZonePanel();
+    return;
+  }
+
+  window.clearTimeout(drawerCloseTimeout);
+  glassDrawer.classList.remove('is-open');
+  glassDrawer.setAttribute('aria-hidden', 'true');
+  closeZonePanel();
+  drawerCloseTimeout = window.setTimeout(() => {
+    glassDrawer.classList.add('hidden');
+    if (drawerOpener instanceof HTMLElement) drawerOpener.focus();
+  }, 280);
+}
+
+document.getElementById('close-glass-drawer').addEventListener('click', closeGlassDrawer);
 container.addEventListener('click', (event) => {
-  if (event.target === renderer.domElement) closeZonePanel();
+  if (event.target === renderer.domElement) closeGlassDrawer();
 });
 
 document.getElementById('toggle-hood').addEventListener('click', () => {
@@ -186,8 +275,14 @@ document.getElementById('reset-cam').addEventListener('click', () => {
   closeZonePanel();
 });
 
+tireSize.addEventListener('change', () => {
+  const isCustomSize = tireSize.value === 'other';
+  customTireSize.classList.toggle('hidden', !isCustomSize);
+  if (isCustomSize) customTireSize.focus();
+});
+
 function updateCartUI() {
-  document.getElementById('cart-count').textContent = serviceCart.length;
+  document.getElementById('cart-count').textContent = `(${serviceCart.length})`;
   document.getElementById('drawer-count').textContent = serviceCart.length;
   const itemsContainer = document.getElementById('cart-items-container');
   const clearCartButton = document.getElementById('clear-cart-btn');
@@ -305,7 +400,13 @@ addToCartButton.addEventListener('click', () => {
     document.querySelectorAll('#zone-services-list input:checked'),
     (input) => input.value
   );
-  const note = document.getElementById('problem-note').value.trim();
+  const noteLines = [document.getElementById('problem-note').value.trim()].filter(Boolean);
+  if (activeZoneId === 'wheels') {
+    if (tireSeason.value) noteLines.push(`Sezóna: ${tireSeason.value}`);
+    const selectedTireSize = tireSize.value === 'other' ? customTireSize.value.trim() : tireSize.value;
+    if (selectedTireSize) noteLines.push(`Rozmer: ${selectedTireSize}`);
+  }
+  const note = noteLines.join('\n');
 
   if (checkedServiceIds.length === 0 && !note) {
     zoneFeedback.textContent = 'Vyberte službu alebo stručne opíšte problém.';
@@ -391,35 +492,12 @@ document.querySelectorAll('[data-modal]').forEach((button) => {
 });
 
 function openCart() {
-  window.clearTimeout(cartCloseTimeout);
+  closeZonePanel();
   updateCartUI();
-  cartBackdrop.classList.remove('hidden');
-  document.body.classList.add('cart-open');
-  window.requestAnimationFrame(() => {
-    cartBackdrop.classList.add('is-open');
-    document.getElementById('close-cart-btn').focus();
-  });
-}
-
-function closeCart() {
-  if (cartBackdrop.classList.contains('hidden')) return;
-  window.clearTimeout(cartCloseTimeout);
-  cartBackdrop.classList.remove('is-open');
-  document.body.classList.remove('cart-open');
-  cartCloseTimeout = window.setTimeout(() => {
-    cartBackdrop.classList.add('hidden');
-    document.getElementById('open-cart-btn').focus();
-  }, 280);
+  openGlassDrawer({ scrollToCart: true });
 }
 
 document.getElementById('open-cart-btn').addEventListener('click', openCart);
-document.getElementById('close-cart-btn').addEventListener('click', closeCart);
-document.getElementById('start-diagnostics-btn').addEventListener('click', () => {
-  selectZone('engine');
-});
-document.querySelectorAll('[data-showcase-zone]').forEach((button) => {
-  button.addEventListener('click', () => selectZone(button.dataset.showcaseZone));
-});
 document.getElementById('quick-booking-btn').addEventListener('click', () => {
   const make = document.getElementById('quick-car-make').value.trim();
   const model = document.getElementById('quick-car-model').value.trim();
@@ -429,9 +507,6 @@ document.getElementById('quick-booking-btn').addEventListener('click', () => {
   if (carDescription) document.getElementById('cust-car').value = carDescription;
   if (service) addCartEntry(service.zoneId, [service.id]);
   openCart();
-});
-cartBackdrop.addEventListener('click', (event) => {
-  if (event.target === cartBackdrop) closeCart();
 });
 
 document.querySelectorAll('[data-close-modal]').forEach((button) => {
@@ -448,8 +523,7 @@ document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
 
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
-  closeZonePanel();
-  if (!cartBackdrop.classList.contains('hidden')) closeCart();
+  closeGlassDrawer();
   document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach((modal) => {
     modal.classList.add('hidden');
   });
@@ -503,27 +577,71 @@ function buildOrderSummary() {
   return { body, subject: `Dopyt na servis - ${name || 'D&T CARS'}` };
 }
 
+async function copyOrderToClipboard(body) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(body);
+      return;
+    }
+
+    const temporaryField = document.createElement('textarea');
+    temporaryField.value = body;
+    temporaryField.setAttribute('readonly', '');
+    temporaryField.style.position = 'fixed';
+    temporaryField.style.opacity = '0';
+    document.body.appendChild(temporaryField);
+    temporaryField.select();
+    const copied = document.execCommand('copy');
+    temporaryField.remove();
+    if (!copied) throw new Error('Clipboard copy was rejected.');
+  } catch (error) {
+    showToast('Objednávku sa nepodarilo skopírovať. Skúste to znova.', 'error');
+    return false;
+  }
+  showToast('Kompletná objednávka bola skopírovaná.');
+  return true;
+}
+
+function openMailFallback(body, subject) {
+  window.location.href =
+    `mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 document.getElementById('copy-order-btn').addEventListener('click', async () => {
   const { body } = buildOrderSummary();
-  if (!navigator.clipboard || !window.isSecureContext) {
-    showToast('Schránka nie je dostupná. Skúste stránku otvoriť cez HTTPS.', 'error');
+  await copyOrderToClipboard(body);
+});
+
+document.getElementById('booking-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const { body, subject } = buildOrderSummary();
+
+  if (!WEB3FORMS_ACCESS_KEY) {
+    showToast('Web3Forms nie je nakonfigurovaný. Otváram e-mail; objednávku môžete aj skopírovať.', 'error');
+    openMailFallback(body, subject);
     return;
   }
 
-  try {
-    await navigator.clipboard.writeText(body);
-    showToast('Kompletná rekapitulácia bola skopírovaná.');
-  } catch (error) {
-    showToast('Rekapituláciu sa nepodarilo skopírovať. Skúste to znova.', 'error');
-  }
-});
+  const formData = new FormData(event.currentTarget);
+  formData.set('access_key', WEB3FORMS_ACCESS_KEY);
+  formData.set('subject', subject);
+  formData.set('from_name', COMPANY_INFO.name);
+  formData.set('message', body);
 
-document.getElementById('booking-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const { body, subject } = buildOrderSummary();
-  window.location.href =
-    `mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  showToast('Otvára sa e-mailový program s pripravenou rekapituláciou.');
+  try {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    if (!response.ok || (result.success !== true && result.success !== 'true')) {
+      throw new Error(result.message || 'Web3Forms rejected the order.');
+    }
+    showToast('Objednávka bola úspešne odoslaná.');
+  } catch (error) {
+    showToast('Online odoslanie zlyhalo. Otváram záložný e-mail.', 'error');
+    openMailFallback(body, subject);
+  }
 });
 
 const animationStart = performance.now();
