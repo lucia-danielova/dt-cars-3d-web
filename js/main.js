@@ -14,8 +14,8 @@ const tireOptions = document.getElementById('tire-options');
 const tireSeason = document.getElementById('tire-season');
 const tireSize = document.getElementById('tire-size');
 const customTireSize = document.getElementById('tire-size-custom');
-const { scene, camera, renderer, focusCamera, resetCamera, updateCamera } = createScene(container);
-const { setBodyColor } = buildCarModel(scene);
+const { scene, camera, renderer, focusCamera, updateCamera } = createScene(container);
+buildCarModel(scene);
 
 let activeZoneId = null;
 let hideHotspotLabels = () => {};
@@ -124,17 +124,6 @@ try {
   showToast('Servisný zoznam sa nepodarilo uložiť v tomto prehliadači.', 'error');
 }
 
-document.querySelectorAll('.swatch').forEach((button) => {
-  button.addEventListener('click', () => {
-    setBodyColor(button.dataset.color);
-    document.querySelectorAll('.swatch').forEach((swatch) => {
-      const isSelected = swatch === button;
-      swatch.classList.toggle('is-selected', isSelected);
-      swatch.setAttribute('aria-pressed', String(isSelected));
-    });
-  });
-});
-
 function selectZone(zoneId) {
   const zone = DIAGNOSTIC_ZONES[zoneId];
   if (!zone) return;
@@ -154,11 +143,6 @@ function selectZone(zoneId) {
     pin.classList.toggle('is-active', isActive);
     pin.setAttribute('aria-pressed', String(isActive));
   });
-  document.querySelectorAll('[data-dock-zone]').forEach((button) => {
-    const dockZoneId = zone.action === 'inspectWheels' ? 'wheels' : zoneId;
-    button.classList.toggle('is-active', button.dataset.dockZone === dockZoneId);
-  });
-
   focusCamera(zone.cameraPos, zone.cameraTarget);
 
   document.getElementById('zone-badge').textContent = zone.badge;
@@ -213,9 +197,6 @@ function closeZonePanel() {
     pin.classList.remove('is-active');
     pin.setAttribute('aria-pressed', 'false');
   });
-  document.querySelectorAll('[data-dock-zone]').forEach((button) => {
-    button.classList.remove('is-active');
-  });
   activeZoneId = null;
 }
 
@@ -259,20 +240,6 @@ function closeGlassDrawer() {
 document.getElementById('close-glass-drawer').addEventListener('click', closeGlassDrawer);
 container.addEventListener('click', (event) => {
   if (event.target === renderer.domElement) closeGlassDrawer();
-});
-
-document.getElementById('toggle-hood').addEventListener('click', () => {
-  selectZone('engine');
-});
-document.getElementById('toggle-doors').addEventListener('click', () => {
-  selectZone('cabin');
-});
-document.getElementById('toggle-wheels').addEventListener('click', () => {
-  selectZone('wheels');
-});
-document.getElementById('reset-cam').addEventListener('click', () => {
-  resetCamera();
-  closeZonePanel();
 });
 
 tireSize.addEventListener('change', () => {

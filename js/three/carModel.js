@@ -5,14 +5,6 @@ export function buildCarModel(scene) {
   const carGroup = new THREE.Group();
   scene.add(carGroup);
 
-  const bodyMaterials = new Set();
-  let bodyColor = '#c5cbd2';
-
-  function setBodyColor(hexColor) {
-    bodyColor = hexColor;
-    bodyMaterials.forEach((material) => material.color.set(hexColor));
-  }
-
   const loader = new GLTFLoader();
   loader.load(
     new URL('../../assets/models/CAR.glb', import.meta.url).href,
@@ -55,12 +47,6 @@ export function buildCarModel(scene) {
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
-        const materials = Array.isArray(object.material) ? object.material : [object.material];
-        materials.forEach((material) => {
-          if (!/^m4car_(body|hood|bodykit)/i.test(material.name)) return;
-          bodyMaterials.add(material);
-          material.color.set(bodyColor);
-        });
       });
 
       carGroup.add(alignedModel);
@@ -70,6 +56,4 @@ export function buildCarModel(scene) {
       console.error('Nepodarilo sa načítať 3D model vozidla D&T CARS.', error);
     }
   );
-
-  return { setBodyColor };
 }

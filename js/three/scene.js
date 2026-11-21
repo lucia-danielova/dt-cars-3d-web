@@ -170,11 +170,6 @@ export function createScene(container) {
     targetLookAt = new THREE.Vector3(...lookArr);
   }
 
-  function resetCamera() {
-    targetCamPos = defaultCamPos.clone();
-    targetLookAt = defaultTarget.clone();
-  }
-
   function updateCamera() {
     if (targetCamPos && targetLookAt) {
       camera.position.lerp(targetCamPos, 0.075);
@@ -193,5 +188,5 @@ export function createScene(container) {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  return { scene, camera, renderer, controls, focusCamera, resetCamera, updateCamera };
+  return { scene, camera, renderer, controls, focusCamera, updateCamera };
 }
