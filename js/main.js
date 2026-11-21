@@ -12,6 +12,7 @@ const { scene, camera, renderer, focusCamera, resetCamera, updateCamera } = crea
 const { setBodyColor } = buildCarModel(scene);
 
 let activeZoneId = null;
+let hideHotspotLabels = () => {};
 let confirmationTimeout = 0;
 let toastTimeout = 0;
 let cartCloseTimeout = 0;
@@ -91,6 +92,7 @@ function selectZone(zoneId) {
   const zone = DIAGNOSTIC_ZONES[zoneId];
   if (!zone) return;
 
+  hideHotspotLabels();
   activeZoneId = zoneId;
   window.clearTimeout(confirmationTimeout);
   document.querySelectorAll('.car-pin').forEach((pin) => {
@@ -156,13 +158,14 @@ function closeZonePanel() {
   activeZoneId = null;
 }
 
-const { animateHotspots } = setupHotspots(
+const { animateHotspots, hidePinLabels } = setupHotspots(
   scene,
   camera,
   renderer.domElement,
   hotspotsOverlay,
   selectZone
 );
+hideHotspotLabels = hidePinLabels;
 
 document.getElementById('close-zone-panel').addEventListener('click', closeZonePanel);
 container.addEventListener('click', (event) => {
