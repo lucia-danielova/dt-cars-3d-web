@@ -15,7 +15,7 @@ const tireSeason = document.getElementById('tire-season');
 const tireSize = document.getElementById('tire-size');
 const customTireSize = document.getElementById('tire-size-custom');
 const { scene, camera, renderer, focusCamera, updateCamera } = createScene(container);
-buildCarModel(scene);
+const carModel = buildCarModel(scene);
 
 let activeZoneId = null;
 let hideHotspotLabels = () => {};
@@ -131,6 +131,9 @@ function selectZone(zoneId) {
   hideHotspotLabels();
   activeZoneId = zoneId;
   window.clearTimeout(confirmationTimeout);
+  carModel.setHoodOpen(zoneId === 'engine');
+  carModel.setDoorsOpen(zoneId === 'cabin');
+  carModel.setWheelsExpanded(zoneId === 'wheels');
   tireOptions.classList.toggle('hidden', zoneId !== 'wheels');
   if (zoneId !== 'wheels') {
     tireSeason.value = '';
@@ -193,6 +196,9 @@ function selectZone(zoneId) {
 function closeZonePanel() {
   zonePanel.classList.add('hidden');
   tireOptions.classList.add('hidden');
+  carModel.setHoodOpen(false);
+  carModel.setDoorsOpen(false);
+  carModel.setWheelsExpanded(false);
   document.querySelectorAll('.car-pin').forEach((pin) => {
     pin.classList.remove('is-active');
     pin.setAttribute('aria-pressed', 'false');
@@ -616,6 +622,7 @@ function animate() {
   requestAnimationFrame(animate);
   const elapsed = (performance.now() - animationStart) / 1000;
   updateCamera();
+  carModel.updateCarAnimations();
   animateHotspots(elapsed);
   renderer.render(scene, camera);
 }
